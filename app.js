@@ -158,43 +158,81 @@ app.get('/check-state', function (req, res) {
 
     setTimeout(checkPlaybackState, 1000);
     function checkPlaybackState() {
-        playbackFunctions._getPlaybackState(access_token).then((response) => {
+        playbackFunctions.getPlaybackState(access_token).then((response) => {
             if (response.status === 200) {
 
                 const request_start_time = Date.now();
 
                 response.json().then((playback_state) => {
-                    playbackFunctions._getQueue(access_token).then((playback_queue) => {
-                        const current_song_id = playback_queue.currently_playing.id;
-                        const next_song_id = playback_queue.queue[0].id;
+                    playbackFunctions.getQueue(access_token).then((playback_queue) => {
 
-                        const current_song = analysis._getTrackAnalysis(access_token, current_song_id);
-                        const next_song = analysis._getTrackAnalysis(access_token, next_song_id);
-                        Promise.all([current_song, next_song]).then((songs) => {
-                            const current_song_analysis = songs[0].segments.slice(-50);
-                            const next_song_analysis = songs[1].segments.slice(0, 49);
-                            const possibleJumps = analysis.compareSongSegments(current_song_analysis, next_song_analysis);
+                        const time_taken = Date.now() - request_start_time;
+                        const response_timestamp = Date.now();
 
-                            const time_taken = Date.now() - request_start_time;
-                            const response_timestamp = Date.now();
-
-                            res.send({
-                                'playback_state': playback_state,
-                                'playback_queue': playback_queue,
-                                'analysis_array': possibleJumps,
-                                'fulfillment_time': time_taken,
-                                'timestamp': response_timestamp
-                            });
+                        res.send({
+                            'playback_state': playback_state,
+                            'playback_queue': playback_queue,
+                            'fulfillment_time': time_taken,
+                            'timestamp': response_timestamp
                         });
 
                     });
-                });
 
+                });
             } else {
                 setTimeout(checkPlaybackState, 3000);
             };
         });
     };
+});
+
+app.get('/get-analysis', function (req, res) {
+
+    const request_start_time = Date.now();
+
+    const access_token = req.query.access_token;
+    const current_song_id = req.query.current_song_id;
+    const next_song_id = req.query.next_song_id;
+
+    analysis.compareTrackIds(access_token, current_song_id, next_song_id, 100).then((analysis_array) => {
+        const response_timestamp = Date.now()
+        const time_taken = Date.now() - request_start_time;
+
+        res.send({
+            'analysis_array': analysis_array,
+            'timestamp': response_timestamp,
+            'fulfillment_time': time_taken
+        });
+    });
+});
+
+app.get('/get-state', function (req, res) {
+
+    const request_start_time = Date.now();
+
+    const access_token = req.query.access_token;
+
+    playbackFunctions.getPlaybackState(access_token).then((response) => {
+        if (response.status === 200) {
+            response.json().then((playback_state) => {
+
+                const response_timestamp = Date.now()
+                const time_taken = Date.now() - request_start_time;
+
+                res.send({
+                    'playback_state': playback_state,
+                    'timestamp': response_timestamp,
+                    'fulfillment_time': time_taken
+                });
+            })
+        };
+    }).catch((error) => {
+        res.send({
+            'error_code': error
+        });
+    });
+
+
 });
 
 console.log('Listening on 8888');

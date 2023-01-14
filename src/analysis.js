@@ -1,6 +1,6 @@
 const { performance } = require('perf_hooks');
 
-const _getTrackAnalysis = async (token, trackId) => {
+const getTrackAnalysis = async (token, trackId) => {
 
     const result = await fetch(`https://api.spotify.com/v1/audio-analysis/${trackId}`, {
         method: 'GET',
@@ -73,18 +73,20 @@ const compareSongSegments = (arr1, arr2) => {
 
 };
 
-const initializeComparison = async (token, track1_id, track2_id, range) => {
-    const song1 = _getTrackAnalysis(token, track1_id);
-    const song2 = _getTrackAnalysis(token, track2_id);
-    Promise.all([song1, song2]).then((values) => {
-        const song1_analysis = values[0].segments.slice((range * -1));
-        const song2_analysis = values[1].segments.slice((range - 1));
-        const possibleJumps = compareSongSegments(song1_analysis, song2_analysis);
-        return possibleJumps;
-    });
+const compareTrackIds = async (token, current_song_id, next_song_id, range = 50) => {
+
+    const current_song = await getTrackAnalysis(token, current_song_id);
+    const next_song = await getTrackAnalysis(token, next_song_id);
+
+    const current_song_segments = current_song.segments.slice((range * -1));
+    const next_song_segments = next_song.segments.slice((range - 1));
+
+    const possibleJumps = compareSongSegments(current_song_segments, next_song_segments);
+    return possibleJumps;
+
 }
 
 
 
 
-module.exports = { _getTrackAnalysis, compareSongSegments, initializeComparison };
+module.exports = { getTrackAnalysis, compareSongSegments, compareTrackIds };

@@ -1,3 +1,22 @@
+let playback_state;
+let playback_queue;
+let analysis_array;
+let device_id;
+
+let current_song;
+let next_song;
+let playlist_position = 0;
+
+let state_setup_time;
+
+let target_timestamp;
+let jump_ms;
+let landing_ms;
+
+
+// problem: didnt actually make the jump
+
+
 document.getElementById('start-listener').addEventListener('click', function () {
 
     // event.preventDefault();
@@ -10,93 +29,154 @@ document.getElementById('start-listener').addEventListener('click', function () 
         }
     }).done(function (response) {
 
+        state_setup_time = (Date.now() - response.timestamp) + response.fulfillment_time;
+
         // get state, queue, and analysis for the first two tracks from player state endpoint
 
-        let playback_state = response.playback_state;
-        let playback_queue = response.playback_queue;
-        let analysis_array = response.analysis_array;
-        let device_id = playback_state.device.id;
+        playback_state = response.playback_state;
+        playback_queue = response.playback_queue;
+        device_id = playback_state.device.id;
 
+        current_song = playback_queue.currently_playing;
+        next_song = playback_queue.queue[0];
 
         console.log(playback_state);
         console.log(playback_queue);
-        console.log(analysis_array);
 
-        let current_song = playback_queue.currently_playing;
-        let next_song = playback_queue.queue[0];
-
-
-        // pick a target segment from the array 
-        let target_timestamp = analysis_array[Math.floor(Math.random() * analysis_array.length)]
-
-        // get target/jump ms values
-        let jump_ms = target_timestamp[0];
-        let landing_ms = target_timestamp[1];
-
-        console.log(`jumping at ${jump_ms}ms and landing at ${landing_ms}ms`);
-
-
-        /*
-        time how long it takes to complete the calculations on the request
-        take unix timestamp right before sending the response 
-        take timestamp when the response is received
-        take the difference between timestamps then add them to the calculation timer
-        */
-        const request_time = (Date.now() - response.timestamp) + response.fulfillment_time;
-
-        console.log(`setup took: ${request_time}ms`);
-
-        // calculate user's current progress in the song based on request delay
-
-        const interval = 100; // ms
-        let current_progress = playback_state.progress_ms + request_time;
-
-        console.log(`current timestamp: ${current_progress}ms`);
-
-        setTimeout(step, interval);
-        function step() {
-            const dt = Date.now() - current_progress; // the drift (positive for overshooting)
-            if (dt > interval) {
-                // special handling to deal with unexpectedly large drift
-            }
-            // check if player is within range of the jump
-            if (current_progress <= jump_ms + 50 && current_progress >= jump_ms - 50) {
-                skipToNext(access_token, next_song.id, landing_ms, device_id);
-                console.log(`skipping from ${current_song.name} to ${next_song.name}`);
-            } else if (current_progress > jump_ms + 50) {
-                // pick a new jump target
-            }
-
-            // update current progress with state fetches to account for changes
-
-            current_progress += interval;
-            setTimeout(step, Math.max(0, interval - dt)); // take into account drift
-        };
+        restartPlaybackManager();
 
     });
 
 }, false);
 
+const restartPlaybackManager = () => {
+
+    // get a current state 
+    if (playback_state) {
+
+        // get track analysis using request
+        $.ajax({
+            url: '/get-analysis',
+            data: {
+                'access_token': access_token,
+                'current_song_id': current_song.id,
+                'next_song_id': next_song.id
+            }
+        }).done((response) => {
+
+            const loader_start = Date.now()
+
+            // update html with currently playing song 
+            updateStage(current_song, next_song);
 
 
-const getTrackAnalysis = async (token, trackId) => {
+            // retrieve the analysis data from response
+            analysis_array = response.analysis_array;
 
-    const result = await fetch(`https://api.spotify.com/v1/audio-analysis/${trackId}`, {
-        method: 'GET',
-        headers: { 'Authorization': 'Bearer ' + token }
-    });
+            // pick a target segment from the array (random for now)
+            target_timestamp = analysis_array[Math.floor(Math.random() * analysis_array.length)];
 
-    const data = await result.json();
-    return data;
+            // set target/jump ms values
+            jump_ms = target_timestamp[0];
+            landing_ms = target_timestamp[1];
+
+            console.log(`jumping at ${jump_ms}ms and landing at ${landing_ms}ms`);
+
+            /*
+            time how long it takes to complete the calculations on the request
+            take unix timestamp right before sending the response 
+            take timestamp when the response is received
+            take the difference between timestamps then add them to the calculation timer
+            */
+
+            const analysis_setup_time = (Date.now() - response.timestamp) + response.fulfillment_time;
+
+            const loader_end = Date.now();
+
+            const total_setup_time = analysis_setup_time + state_setup_time + (loader_end - loader_start);
+            console.log(`setup took: ${total_setup_time}ms`);
+
+            // calculate user's current progress in the song based on request delay
+            let current_progress = playback_state.progress_ms + total_setup_time;
+
+            const interval = 100; // ms
+
+            console.log(`current timestamp: ${current_progress}ms`);
+
+            setTimeout(step, interval);
+            function step() {
+                const dt = Date.now() - current_progress; // the drift (positive for overshooting)
+                if (dt > interval) {
+                    // special handling to deal with unexpectedly large drift
+                }
+                // check if player is within range of the jump
+                if (current_progress <= jump_ms + 50 && current_progress >= jump_ms - 50) {
+                    skipToNext(access_token, next_song.id, landing_ms, device_id).then(() => {
+                        playlist_position++;
+                        current_song = playback_queue.queue[playlist_position];
+                        next_song = playback_queue.queue[playlist_position + 1];
+
+                        playback_state = null;
+                        restartPlaybackManager();
+                        return;
+
+                    });
+                    console.log(`skipping from ${current_song.name} to ${next_song.name}`);
+
+                } else if (current_progress > jump_ms + 50) {
+                    // pick a new jump target
+                    selectNewJump();
+                }
+
+                // update current progress with state fetches to account for changes
+
+                current_progress += interval;
+                // setTimeout(step, Math.max(0, interval - dt));
+                setTimeout(step, interval); // take into account drift? (possible point of delay)
+            };
+
+
+        });
+
+    } else {
+        $.ajax({
+            url: '/get-state',
+            data: {
+                'access_token': access_token
+            }
+        }).done((response) => {
+            if (response.playback_state) {
+
+                state_setup_time = (Date.now() - response.timestamp) + response.fulfillment_time;
+                playback_state = response.playback_state;
+
+                restartPlaybackManager();
+            } else {
+                if (response.error_code) {
+                    console.log(`get state failed with error: ${response.error_code}`);
+                } else {
+                    console.log('I have no idea what went wrong, good luck');
+                };
+            };
+        });
+    };
+
 };
 
-const getSegmentMS = async (token, trackId, targetSegment) => {
 
-    const target_song = await getTrackAnalysis(token, trackId);
 
-    const target_ms = (target_song.segments[targetSegment].start * 1000);
 
-    return target_ms;
+const selectNewJump = () => {
+
+    const target_timestamp = analysis_array[Math.floor(Math.random() * analysis_array.length)];
+    jump_ms = target_timestamp[0];
+
+};
+
+const updateStage = (current_song, next_song) => {
+
+    document.getElementById('song-1-img').src = `${current_song.album.images[1].url}`;
+    document.getElementById('song-2-img').src = `${next_song.album.images[1].url}`;
 
 };
 
