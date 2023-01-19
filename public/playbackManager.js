@@ -40,9 +40,6 @@ document.getElementById('start-listener').addEventListener('click', function () 
         current_song = playback_queue.currently_playing;
         next_song = playback_queue.queue[0];
 
-        console.log(playback_state);
-        console.log(playback_queue);
-
         restartPlaybackManager();
 
     });
@@ -51,8 +48,12 @@ document.getElementById('start-listener').addEventListener('click', function () 
 
 const restartPlaybackManager = () => {
 
+    console.log('RESTARTING PLAYBACK MANAGER');
+    console.log(playback_state);
+    console.log(playback_queue);
+
     // get a current state 
-    if (playback_state) {
+    if (playback_state.is_playing) {
 
         // get track analysis using request
         $.ajax({
@@ -101,7 +102,7 @@ const restartPlaybackManager = () => {
 
             const interval = 100; // ms
 
-            console.log(`current timestamp: ${current_progress}ms`);
+            console.log(`current progress: ${current_progress}ms`);
 
             setTimeout(step, interval);
             function step() {
@@ -109,9 +110,10 @@ const restartPlaybackManager = () => {
                 if (dt > interval) {
                     // special handling to deal with unexpectedly large drift
                 }
-                // check if player is within range of the jump
-                if (current_progress <= jump_ms + 50 && current_progress >= jump_ms - 50) {
+                // check if player is within 50 ms of the jump
+                if (current_progress >= jump_ms - 50 && current_progress <= jump_ms + 50) {
                     skipToNext(access_token, next_song.id, landing_ms, device_id).then(() => {
+
                         playlist_position++;
                         current_song = playback_queue.queue[playlist_position];
                         next_song = playback_queue.queue[playlist_position + 1];
@@ -124,6 +126,7 @@ const restartPlaybackManager = () => {
                     console.log(`skipping from ${current_song.name} to ${next_song.name}`);
 
                 } else if (current_progress > jump_ms + 50) {
+                    console.log('jump missed, picking a new target jump');
                     // pick a new jump target
                     selectNewJump();
                 }
@@ -139,6 +142,9 @@ const restartPlaybackManager = () => {
         });
 
     } else {
+
+        console.log(`state refused by playback manager, restarting...`);
+
         $.ajax({
             url: '/get-state',
             data: {
@@ -177,6 +183,7 @@ const updateStage = (current_song, next_song) => {
 
     document.getElementById('song-1-img').src = `${current_song.album.images[1].url}`;
     document.getElementById('song-2-img').src = `${next_song.album.images[1].url}`;
+    document.getElementById('player-header').innerText = `Now Playing ${current_song.name}`;
 
 };
 
@@ -189,5 +196,7 @@ const skipToNext = async (token, track_id, target_ms, target_id) => {
             'Authorization': `Bearer ${token}`
         }
     }).catch(e => console.error(e));
+
+    console.log(`skipToNext function triggered`);
 
 };
