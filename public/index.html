@@ -5,48 +5,36 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Learning the Auth Flow</title>
+    <title>Playlist Assist</title>
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
-    <style type="text/css">
-        #login,
-        #loggedin {
-            display: none;
-        }
-
-        .text-overflow {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            width: 500px;
-        }
-
-        .stage-track {
-            display: inline-block
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
     <div id="login">
-        <h1>Learning Authorization Flow Spotify</h1>
+        <h1>Playlist Assist</h1>
         <a href="/login" class="btn btn-primary">Log in with Spotify</a>
     </div>
     <div id="logged-in">
-        <h1>Logged in with Authorization Flow!</h1>
-        <button id="refresh-token">Get a New Token!</button>
-        <button class="btn btn-default" id="start-listener">Test Listener</button>
-        <div id="song-stage">
-            <div class='stage-track' id="song-1">
-                <img id='song-1-img'
-                    src="https://buckleyhc.com/wp-content/uploads/2013/11/Vector-person-leaning-back-on-big-red-question-mark.jpg"
-                    alt="missing image" width="300" height="300">
+        <container id="content">
+            <h1 id = "player-header">Logged in with Spotify</h1>
+            <div id="song-stage">
+                <div class='stage-track' id="song-1">
+                    <img id='song-1-img'
+                        src="./assets/missingtrack.png"
+                        alt="missing image" width="300" height="300">
+                </div>
+                <div class='stage-track' id="song-2">
+                    <img id='song-2-img'
+                        src="./assets/missingtrack.png"
+                        alt="missing image" width="300" height="300">
+                </div>
             </div>
-            <div class='stage-track' id="song-2">
-                <img id='song-2-img'
-                    src="https://buckleyhc.com/wp-content/uploads/2013/11/Vector-person-leaning-back-on-big-red-question-mark.jpg"
-                    alt="missing image" width="300" height="300">
+            <div id="controller-buttons">
+                <button class="btn btn-primary" id="refresh-token">Get a New Token!</button>
+                <button class="btn btn-primary" id="start-listener">Test Listener</button>
             </div>
-        </div>
+        </container>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
     <script>
