@@ -232,7 +232,26 @@ app.get('/get-state', function (req, res) {
         });
     });
 
+});
 
+app.get('/get-queue', function (req,res) {
+
+    const request_start_time = Date.now();
+
+    const access_token = req.query.access_token;
+
+    playbackFunctions.getQueue(access_token).then((playback_queue) => {
+
+        const response_timestamp = Date.now();
+        const time_taken = Date.now() - request_start_time;
+
+        res.send({
+            'playback_queue': playback_queue,
+            'timestamp': response_timestamp,
+            'fulfillment_time': time_taken
+        });
+        
+    });
 });
 
 console.log('Listening on 8888');

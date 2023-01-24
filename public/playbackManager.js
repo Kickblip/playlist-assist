@@ -49,8 +49,6 @@ document.getElementById('start-listener').addEventListener('click', function () 
 const restartPlaybackManager = () => {
 
     console.log('RESTARTING PLAYBACK MANAGER');
-    console.log(playback_state);
-    console.log(playback_queue);
 
     // get a current state 
     if (playback_state.is_playing) {
@@ -106,12 +104,13 @@ const restartPlaybackManager = () => {
 
             setTimeout(step, interval);
             function step() {
+                console.log(current_progress);
                 const dt = Date.now() - current_progress; // the drift (positive for overshooting)
                 if (dt > interval) {
                     // special handling to deal with unexpectedly large drift
                 }
                 // check if player is within 50 ms of the jump
-                if (current_progress >= jump_ms - 50 && current_progress <= jump_ms + 50) {
+                if (current_progress >= jump_ms - 100 && current_progress <= jump_ms + 100) {
                     skipToNext(access_token, next_song.id, landing_ms, device_id).then(() => {
 
                         playlist_position++;
@@ -122,7 +121,7 @@ const restartPlaybackManager = () => {
                         restartPlaybackManager();
                         return;
 
-                    });
+                    }).catch(err => console.log(err));
                     console.log(`skipping from ${current_song.name} to ${next_song.name}`);
 
                 } else if (current_progress > jump_ms + 50) {
@@ -170,7 +169,72 @@ const restartPlaybackManager = () => {
 };
 
 
+const getPlaybackState = () => {
 
+    $.ajax({
+        url: '/get-state',
+        data: {
+            'access_token': access_token
+        }
+    }).done((response) => {
+        if (response.playback_state) {
+
+            const playback_state = response.playback_state;
+            const fetch_time = ((Date.now()-response.timestamp) + response.fulfillment_time);
+    
+            return {
+                'playback_state': playback_state,
+                'fetch_time': fetch_time
+            };
+
+        } else {
+            console.log(`getPlaybackState failed with error: ${response.error_code}`)
+
+        }
+    });
+};
+
+const getPlaybackQueue = () => {
+
+    $.ajax({
+        url: '/get-queue',
+        data: {
+            'access_token': access_token
+        }
+    }).done((response => {
+
+        const playback_queue = response.playback_queue;
+        const fetch_time = ((Date.now()-response.timestamp) + response.fulfillment_time);
+
+        return {
+            'playback_queue': playback_queue,
+            'fetch_time': fetch_time
+        };
+
+    }))
+};
+
+const getAnalysis = (access_token, current_song, next_song) => {
+
+    $.ajax({
+        url: '/get-analysis',
+        data: {
+            'access_token': access_token,
+            'current_song_id': current_song.id,
+            'next_song_id': next_song.id
+        }
+    }).done((response) => {
+        
+        const analysis_array = response.analysis_array;
+        const fetch_time = ((Date.now()-response.timestamp) + response.fulfillment_time);
+
+        return {
+            'analysis_array': analysis_array,
+            'fetch_time': fetch_time
+        };
+    });
+
+};
 
 const selectNewJump = () => {
 
