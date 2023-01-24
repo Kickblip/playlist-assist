@@ -1,11 +1,12 @@
 let playlist_position = 0;
 let playback_queue;
+let queue_fetch_ms;
 let current_song;
 let next_song;
 
 document.getElementById('start-listener').addEventListener('click', function () {
 
-    // event.preventDefault();
+    event.preventDefault();
     // figure out a way to do this ^
 
     $.ajax({
@@ -15,18 +16,8 @@ document.getElementById('start-listener').addEventListener('click', function () 
         }
     }).done(function (response) {
 
-        // state_setup_time = (Date.now() - response.timestamp) + response.fulfillment_time;
-
-        // // get state, queue, and analysis for the first two tracks from player state endpoint
-
-        // playback_state = response.playback_state;
-        // playback_queue = response.playback_queue;
-        // device_id = playback_state.device.id;
-
-        // current_song = playback_queue.currently_playing;
-        // next_song = playback_queue.queue[0];
-
         playback_queue = response.playback_queue;
+        queue_fetch_ms = (Date.now() - response.timestamp) + response.fulfillment_time;
 
         restartPlaybackManager();
 
@@ -50,11 +41,12 @@ const restartPlaybackManager = async () => {
     */
 
     // get a current state and queue
-    const playbackStateFetch = await getPlaybackState();
+    const playbackStateFetch = await getPlaybackState(access_token);
     // const playbackQueueFetch = await getPlaybackQueue();
 
-    playback_state = playbackQueueFetch.playback_state;
-    const device_id = playback_state.device_id;
+    const playback_state = playbackStateFetch.playback_state;
+    console.log(playback_state);
+    const device_id = playback_state.device.id;
     // playback_queue = playbackStateFetch.playback_queue;
 
     const state_fetch_ms = playbackStateFetch.fetch_time;
@@ -132,3 +124,158 @@ const restartPlaybackManager = async () => {
 
     };
 };
+
+
+
+const getPlaybackState = async (access_token) => {
+
+    const req_start_time = Date.now();
+
+    const result = await fetch(`https://api.spotify.com/v1/me/player`, {
+        method: 'GET',
+        headers: { 'Authorization': 'Bearer ' + access_token }
+    });
+
+    const data = await result.json();
+    const fetch_time = Date.now() - req_start_time;
+    
+    return {
+        'playback_state': data,
+        'fetch_time': fetch_time
+    }
+
+};
+
+
+
+
+
+// const getPlaybackQueue = () => {
+
+//     $.ajax({
+//         url: '/get-queue',
+//         data: {
+//             'access_token': access_token
+//         }
+//     }).done((response => {
+
+//         const playback_queue = response.playback_queue;
+//         const fetch_time = ((Date.now()-response.timestamp) + response.fulfillment_time);
+
+//         return {
+//             'playback_queue': playback_queue,
+//             'fetch_time': fetch_time
+//         };
+
+//     }))
+// };
+
+// const getAnalysis = async (access_token, current_song, next_song) => {
+
+//     $.ajax({
+//         url: '/get-analysis',
+//         data: {
+//             'access_token': access_token,
+//             'current_song_id': current_song.id,
+//             'next_song_id': next_song.id
+//         }
+//     }).done((response) => {
+
+//         const analysis_array = response.analysis_array;
+//         const fetch_time = ((Date.now()-response.timestamp) + response.fulfillment_time);
+
+//         console.log(analysis_array[1]);
+//         console.log(fetch_time);
+        
+//         return {
+//             'analysis_array': analysis_array,
+//             'fetch_time': fetch_time
+//         };
+//     });
+    
+// };
+
+const getAnalysis = async (access_token, current_song, next_song) => {
+
+    return new Promise((resolve, reject) => {
+
+        $.ajax({
+            url: '/get-analysis',
+            data: {
+                'access_token': access_token,
+                'current_song_id': current_song.id,
+                'next_song_id': next_song.id
+            }
+        }).done((response) => {
+            const analysis_array = response.analysis_array;
+            const fetch_time = ((Date.now()-response.timestamp) + response.fulfillment_time);
+            
+            resolve({
+                'analysis_array': analysis_array,
+                'fetch_time': fetch_time
+            });
+        });
+        
+    });
+};
+
+const selectNewJump = () => {
+
+    const target_timestamp = analysis_array[Math.floor(Math.random() * analysis_array.length)];
+    jump_ms = target_timestamp[0];
+
+};
+
+const updateStage = (current_song, next_song) => {
+
+    document.getElementById('song-1-img').src = `${current_song.album.images[1].url}`;
+    document.getElementById('song-2-img').src = `${next_song.album.images[1].url}`;
+    document.getElementById('player-header').innerText = `Now Playing ${current_song.name}`;
+
+};
+
+const skipToNext = async (token, track_id, target_ms, target_id) => {
+
+    fetch(`https://api.spotify.com/v1/me/player/play${target_id && `?device_id=${target_id}`}`, {
+        method: "PUT",
+        body: JSON.stringify({ "uris": [`spotify:track:${track_id}`], "position_ms": target_ms }),
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    }).catch(e => console.error(e));
+
+    console.log(`skipToNext function triggered`);
+
+};
+
+// const getPlaybackState = () => {
+
+//     $.ajax({
+//         url: '/get-state',
+//         data: {
+//             'access_token': access_token
+//         }
+//     }).done((response) => {
+//         if (response.playback_state) {
+
+//             /*
+//             time how long it takes to complete the calculations on the request
+//             take unix timestamp right before sending the response 
+//             take timestamp when the response is received
+//             take the difference between timestamps then add them to the calculation timer
+//             */
+
+//             const playback_state = response.playback_state;
+//             const fetch_time = ((Date.now()-response.timestamp) + response.fulfillment_time);
+    
+//             return {
+//                 'playback_state': playback_state,
+//                 'fetch_time': fetch_time
+//             };
+
+//         } else {
+//             console.log(`getPlaybackState failed with error: ${response.error_code}`)
+
+//         };
+//     });
+// };
