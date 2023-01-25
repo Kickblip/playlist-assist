@@ -163,22 +163,19 @@ app.get('/check-state', function (req, res) {
 
                 const request_start_time = Date.now();
 
-                response.json().then((playback_state) => {
-                    playbackFunctions.getQueue(access_token).then((playback_queue) => {
+                playbackFunctions.getQueue(access_token).then((playback_queue) => {
 
-                        const time_taken = Date.now() - request_start_time;
-                        const response_timestamp = Date.now();
+                    const time_taken = Date.now() - request_start_time;
+                    const response_timestamp = Date.now();
 
-                        res.send({
-                            'playback_state': playback_state,
-                            'playback_queue': playback_queue,
-                            'fulfillment_time': time_taken,
-                            'timestamp': response_timestamp
-                        });
-
+                    res.send({
+                        'playback_queue': playback_queue,
+                        'fulfillment_time': time_taken,
+                        'timestamp': response_timestamp
                     });
 
                 });
+
             } else {
                 setTimeout(checkPlaybackState, 3000);
             };
@@ -232,7 +229,26 @@ app.get('/get-state', function (req, res) {
         });
     });
 
+});
 
+app.get('/get-queue', function (req,res) {
+
+    const request_start_time = Date.now();
+
+    const access_token = req.query.access_token;
+
+    playbackFunctions.getQueue(access_token).then((playback_queue) => {
+
+        const response_timestamp = Date.now();
+        const time_taken = Date.now() - request_start_time;
+
+        res.send({
+            'playback_queue': playback_queue,
+            'timestamp': response_timestamp,
+            'fulfillment_time': time_taken
+        });
+
+    });
 });
 
 console.log('Listening on 8888');
