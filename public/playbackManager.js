@@ -19,6 +19,11 @@ document.getElementById('start-listener').addEventListener('click', function () 
         playback_queue = response.playback_queue;
         queue_fetch_ms = (Date.now() - response.timestamp) + response.fulfillment_time;
 
+        current_song = playback_queue.currently_playing;
+        next_song = playback_queue.queue[playlist_position];
+
+        console.log(playback_queue);
+
         restartPlaybackManager();
 
     });
@@ -38,6 +43,10 @@ const restartPlaybackManager = async () => {
     2. Move API calls to clientside (except for analysis)
 
     3. Create a system for organizing an entire playlist by tempo and bpm
+
+    Problems:
+    timer doesnt stop when a jump is made so it starts counting from null
+    getState doesnt get state of current song, only seems to get state from initial song 
     */
 
     // get a current state and queue
@@ -52,15 +61,12 @@ const restartPlaybackManager = async () => {
     const state_fetch_ms = playbackStateFetch.fetch_time;
     // const queue_fetch_ms = playbackQueueFetch.fetch_time;
 
-    current_song = playback_queue.currently_playing;
-    next_song = playback_queue.queue[playlist_position];
-
     const analysisFetch = await getAnalysis(access_token, current_song, next_song);
 
     const analysis_array = analysisFetch.analysis_array;
     const analysis_fetch_ms = analysisFetch.fetch_time;
 
-
+    
     const loader_start = Date.now();
 
     updateStage(current_song, next_song)
@@ -99,15 +105,19 @@ const restartPlaybackManager = async () => {
         if (current_progress >= jump_ms - 100 && current_progress <= jump_ms + 100) {
             skipToNext(access_token, next_song.id, landing_ms, device_id).then(() => {
 
-                playlist_position++;
                 current_song = playback_queue.queue[playlist_position];
-                next_song = playback_queue.queue[playlist_position + 1];
+                console.log(`new current song: ${current_song.name}`);
+
+                playlist_position++; // increase by one for next song in queue
+                next_song = playback_queue.queue[playlist_position];
+                console.log(`new next song: ${next_song.name}`);
+
+                current_progress = null;
 
                 restartPlaybackManager();
                 return;
 
             }).catch(err => console.log(err));
-            console.log(`skipping from ${current_song.name} to ${next_song.name}`);
 
         } else if (current_progress > jump_ms + 50) {
             console.log('jump missed, picking a new target jump');
@@ -116,11 +126,11 @@ const restartPlaybackManager = async () => {
         }
 
         // update current progress with state fetches to account for changes
-
-        current_progress += interval;
-        // setTimeout(step, Math.max(0, interval - dt));
-        setTimeout(step, interval); // take into account drift? (possible point of delay)
-
+        if (current_progress) {
+            current_progress += interval;
+            // setTimeout(step, Math.max(0, interval - dt));
+            setTimeout(step, interval); // take into account drift? (possible point of delay)
+        };
 
     };
 };
@@ -245,6 +255,7 @@ const skipToNext = async (token, track_id, target_ms, target_id) => {
     }).catch(e => console.error(e));
 
     console.log(`skipToNext function triggered`);
+    console.log(`skipping from ${current_song.name} to ${next_song.name}`);
 
 };
 
