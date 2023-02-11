@@ -1,4 +1,4 @@
-class Player {
+export default class Player {
     constructor(current_song, next_song, access_token) {
         this.current_song = current_song;
         this.next_song = next_song;
@@ -12,15 +12,16 @@ class Player {
     }
     // gets a current state and queue from the Spotify API and returns the time it took
     async gatherData() {
-        const playbackStateFetch = await getPlaybackState(access_token);
+
+        const playbackStateFetch = await getPlaybackState(this.access_token);
 
         this.playback_state = playbackStateFetch.playback_state;
-        this.device_id = playback_state.device.id;
-        console.log(playback_state);
+        this.device_id = this.playback_state.device.id;
+        console.log(this.playback_state);
 
         const state_fetch_ms = playbackStateFetch.fetch_time;
 
-        const analysisFetch = await getAnalysis(access_token, current_song, next_song);
+        const analysisFetch = await getAnalysis(this.access_token, this.current_song, this.next_song);
         this.analysis_array = analysisFetch.analysis_array;
 
         const analysis_fetch_ms = analysisFetch.fetch_time;
@@ -68,6 +69,20 @@ class Player {
         }).catch(e => console.error(e));
 
     };
+
+    // reset(current_song, next_song, access_token) {
+
+    //     this.playback_state = null;
+    //     this.analysis_array = null;
+    //     this.device_id = null;
+    //     this.jump_ms = null;
+    //     this.landing_ms = null;
+
+    //     this.current_song = current_song;
+    //     this.next_song = next_song;
+    //     this.access_token = access_token;
+
+    // }
 
 
 }
