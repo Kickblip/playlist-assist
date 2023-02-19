@@ -1,6 +1,8 @@
 # Knit-list Playlist Manager
 spotify companion webapp for creating seamless, beat-matched transitions based on audio analysis
 
+## [Check out the first test of Knit List here (it's a bit rough)](https://youtube.com/shorts/zvYPn4VN__0?feature=share)
+
 ## What data is the algorithm using?
 * Spotify Audio Feature Data
   * acousticness
