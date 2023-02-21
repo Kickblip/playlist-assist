@@ -81,7 +81,10 @@ const compareTrackIds = async (token, current_song_id, next_song_id, range = 20)
 
     // slice segment arrays to only include a given range of segments
     const current_song_segments = current_song.segments.slice((range * -1));
-    const next_song_segments = next_song.segments.slice((range - 1));
+    const next_song_segments = next_song.segments.slice(0, range);
+
+    console.log(`current song segments: ${current_song_segments.length}`);
+    console.log(`next song segments: ${next_song_segments.length}`);
 
     // compare segments and return possible jumps
     const possibleJumps = compareSongSegments(current_song_segments, next_song_segments);
