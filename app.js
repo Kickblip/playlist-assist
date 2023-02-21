@@ -100,9 +100,6 @@ app.get('/callback', function (req, res) {
                         let access_token = data.access_token
                         let refresh_token = data.refresh_token
 
-                        // login to firebase app - create node on database tree
-                        databaseManager.login(firebaseApp)
-
                         res.redirect('/#' +
                             querystring.stringify({
                                 access_token: access_token,
@@ -200,54 +197,6 @@ app.get('/get-analysis', function (req, res) {
             'timestamp': response_timestamp,
             'fulfillment_time': time_taken
         });
-    });
-});
-
-app.get('/get-state', function (req, res) {
-
-    const request_start_time = Date.now();
-
-    const access_token = req.query.access_token;
-
-    playbackFunctions.getPlaybackState(access_token).then((response) => {
-        if (response.status === 200) {
-            response.json().then((playback_state) => {
-
-                const response_timestamp = Date.now()
-                const time_taken = Date.now() - request_start_time;
-
-                res.send({
-                    'playback_state': playback_state,
-                    'timestamp': response_timestamp,
-                    'fulfillment_time': time_taken
-                });
-            })
-        };
-    }).catch((error) => {
-        res.send({
-            'error_code': error
-        });
-    });
-
-});
-
-app.get('/get-queue', function (req, res) {
-
-    const request_start_time = Date.now();
-
-    const access_token = req.query.access_token;
-
-    playbackFunctions.getQueue(access_token).then((playback_queue) => {
-
-        const response_timestamp = Date.now();
-        const time_taken = Date.now() - request_start_time;
-
-        res.send({
-            'playback_queue': playback_queue,
-            'timestamp': response_timestamp,
-            'fulfillment_time': time_taken
-        });
-
     });
 });
 

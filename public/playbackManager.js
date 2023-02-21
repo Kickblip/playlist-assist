@@ -49,7 +49,6 @@ const restartPlaybackManager = async () => {
     PROBLEMS:
     1. interval seems to be doing ghost intervals after song is skipped
     2. after a jump is made the client side queue is only one song so if they restart the app it freaks out on a jump
-    4. listener button can be pressed multiple times and it will start multiple playback managers
 
     */
 
