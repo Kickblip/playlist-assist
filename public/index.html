@@ -17,17 +17,13 @@
     </div>
     <div id="logged-in">
         <container id="content">
-            <h1 id = "player-header">Logged in with Spotify</h1>
+            <h1 id="player-header">Logged in with Spotify</h1>
             <div id="song-stage">
                 <div class='stage-track' id="song-1">
-                    <img id='song-1-img'
-                        src="./assets/missingtrack.png"
-                        alt="missing image" width="300" height="300">
+                    <img id='song-1-img' src="./assets/missingtrack.png" alt="missing image" width="300" height="300">
                 </div>
                 <div class='stage-track' id="song-2">
-                    <img id='song-2-img'
-                        src="./assets/missingtrack.png"
-                        alt="missing image" width="300" height="300">
+                    <img id='song-2-img' src="./assets/missingtrack.png" alt="missing image" width="300" height="300">
                 </div>
             </div>
             <div id="controller-buttons">
@@ -80,7 +76,8 @@
         }, false);
 
     </script>
-    <script src="./playbackManager.js"></script>
+    <script type="module" src="./playbackManager.js"></script>
+    <script type="module" src="./player.js"></script>
 </body>
 
 </html>
