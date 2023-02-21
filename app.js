@@ -4,31 +4,12 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const playbackFunctions = require('./src/playbackFunctions');
 const analysis = require('./src/analysis');
-const firebase_app = require('firebase/app');
-const databaseManager = require('./src/database');
 
 require('dotenv').config();
 
 const client_id = process.env.CLIENT_ID;
 const client_secret = process.env.CLIENT_SECRET;
 const redirect_uri = process.env.REDIRECT_URI;
-
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-const firebaseConfig = {
-    apiKey: process.env.API_KEY,
-    authDomain: process.env.AUTH_DOMAIN,
-    databaseURL: process.env.DATABASE_URL,
-    projectId: process.env.PROJECT_ID,
-    storageBucket: process.env.STORAGE_BUCKET,
-    messagingSenderId: process.env.MESSAGING_SENDER_ID,
-    appId: process.env.APP_ID,
-    measurementId: process.env.MEASUREMENT_ID
-};
-
-// Initialize Firebase
-const firebaseApp = firebase_app.initializeApp(firebaseConfig);
 
 
 const generateRandomString = function (length) {
