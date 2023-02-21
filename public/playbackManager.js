@@ -8,8 +8,8 @@ import Player from './player.js';
 
 document.getElementById('start-listener').addEventListener('click', function () {
 
-    event.preventDefault();
-    // ^ figure out a way to do this
+    // prevent this function from being called multiple times by multiple presses of the button
+    this.disabled = true;
 
     $.ajax({
         url: '/check-state',
@@ -42,13 +42,13 @@ const restartPlaybackManager = async () => {
     2. figure out what is causing the error codes to pop when a jump is made
     3. change the algorithm 
     4. implement a token refresh system (check for token expiration on API calls)
+    5. periodically sync the users live state with the server
     5. optimize for speed (reduce timer interval?)
     6. cleanup time!
 
     PROBLEMS:
     1. interval seems to be doing ghost intervals after song is skipped
     2. after a jump is made the client side queue is only one song so if they restart the app it freaks out on a jump
-    3. analysis is returning way to big of numbers for jumps and landing times - the landing times are like 100 seconds into the songs
     4. listener button can be pressed multiple times and it will start multiple playback managers
 
     */

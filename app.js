@@ -191,7 +191,7 @@ app.get('/get-analysis', function (req, res) {
     const current_song_id = req.query.current_song_id;
     const next_song_id = req.query.next_song_id;
 
-    analysis.compareTrackIds(access_token, current_song_id, next_song_id, 20).then((analysis_array) => {
+    analysis.compareTrackIds(access_token, current_song_id, next_song_id, 50).then((analysis_array) => {
         const response_timestamp = Date.now()
         const time_taken = Date.now() - request_start_time;
 
