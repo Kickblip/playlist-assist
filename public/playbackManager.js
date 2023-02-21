@@ -3,15 +3,13 @@ let playback_queue;
 let queue_fetch_ms;
 let current_song;
 let next_song;
-let player_started = false;
 
 import Player from './player.js';
-
 
 document.getElementById('start-listener').addEventListener('click', function () {
 
     event.preventDefault();
-    // figure out a way to do this ^
+    // ^ figure out a way to do this
 
     $.ajax({
         url: '/check-state',
@@ -38,18 +36,21 @@ const restartPlaybackManager = async () => {
 
     console.log('RESTARTING PLAYBACK MANAGER');
     /*
+
     TODO:
-    1. streamline serverside listener so it only passes queue through once it 
-    finds a valid state
+    1. create a system for organizing an entire playlist by tempo and bpm
+    2. figure out what is causing the error codes to pop when a jump is made
+    3. change the algorithm 
+    4. implement a token refresh system (check for token expiration on API calls)
+    5. optimize for speed (reduce timer interval?)
+    6. cleanup time!
 
-    2. Move API calls to clientside (except for analysis)
+    PROBLEMS:
+    1. interval seems to be doing ghost intervals after song is skipped
+    2. after a jump is made the client side queue is only one song so if they restart the app it freaks out on a jump
+    3. analysis is returning way to big of numbers for jumps and landing times - the landing times are like 100 seconds into the songs
+    4. listener button can be pressed multiple times and it will start multiple playback managers
 
-    3. Create a system for organizing an entire playlist by tempo and bpm
-
-    Problems:
-    timer doesnt stop when a jump is made so it starts counting from null
-    getState doesnt get state of current song, only seems to get state from initial song 
-    after a jump is made the client side queue is only one song so if they restart the app it freaks out on a jump
     */
 
     let player = new Player(current_song, next_song, access_token);
@@ -77,11 +78,10 @@ const restartPlaybackManager = async () => {
 
     // calculate user's current progress in the song based on request delay
     let current_progress = player.playback_state.progress_ms + total_setup_time;
-
+    console.log(`current progress: ${current_progress}ms`);
 
     const interval = 100; // ms
-
-    console.log(`current progress: ${current_progress}ms`);
+    let looping = true;
 
     setTimeout(step, interval);
     function step() {
@@ -104,7 +104,10 @@ const restartPlaybackManager = async () => {
                 current_progress = null;
                 player = null;
 
+                looping = false;
+                clearTimeout(step);
                 restartPlaybackManager();
+
                 return;
 
             }).catch(err => console.log(err));
@@ -116,10 +119,12 @@ const restartPlaybackManager = async () => {
         }
 
         // update current progress with state fetches to account for changes
-        if (current_progress) {
+        if (looping) {
             current_progress += interval;
             // setTimeout(step, Math.max(0, interval - dt));
             setTimeout(step, interval); // take into account drift? (possible point of delay)
+        } else {
+            return;
         };
 
     };

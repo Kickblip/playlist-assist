@@ -73,18 +73,21 @@ const compareSongSegments = (arr1, arr2) => {
 
 };
 
-const compareTrackIds = async (token, current_song_id, next_song_id, range = 50) => {
+const compareTrackIds = async (token, current_song_id, next_song_id, range = 20) => {
 
+    // returns Spotify's audio analysis for a given track id
     const current_song = await getTrackAnalysis(token, current_song_id);
     const next_song = await getTrackAnalysis(token, next_song_id);
 
+    // slice segment arrays to only include a given range of segments
     const current_song_segments = current_song.segments.slice((range * -1));
     const next_song_segments = next_song.segments.slice((range - 1));
 
+    // compare segments and return possible jumps
     const possibleJumps = compareSongSegments(current_song_segments, next_song_segments);
     return possibleJumps;
 
-}
+};
 
 
 

@@ -24,6 +24,9 @@ export default class Player {
         const analysisFetch = await getAnalysis(this.access_token, this.current_song, this.next_song);
         this.analysis_array = analysisFetch.analysis_array;
 
+        // testing
+        console.log(this.analysis_array);
+
         const analysis_fetch_ms = analysisFetch.fetch_time;
 
         return {
@@ -70,22 +73,7 @@ export default class Player {
 
     };
 
-    // reset(current_song, next_song, access_token) {
-
-    //     this.playback_state = null;
-    //     this.analysis_array = null;
-    //     this.device_id = null;
-    //     this.jump_ms = null;
-    //     this.landing_ms = null;
-
-    //     this.current_song = current_song;
-    //     this.next_song = next_song;
-    //     this.access_token = access_token;
-
-    // }
-
-
-}
+};
 
 const getPlaybackState = async (access_token) => {
 
