@@ -49,11 +49,28 @@
 
         let access_token = params.access_token;
         let refresh_token = params.refresh_token;
+        let expires_in_ms = params.expires_in_ms;
         let error = params.error;
 
         if (error) {
             alert('There was an error during the authentication');
         } else {
+
+            // set an interval to check if the token is about to expire and then refresh it
+            setInterval(() => {
+                if (expires_in_ms < 1000000) { // expires in under 1000 seconds
+                    $.ajax({
+                        url: '/refresh_token',
+                        data: {
+                            'refresh_token': refresh_token
+                        }
+                    }).done(function (data) {
+                        access_token = data.access_token;
+                        console.log(`new access token: ${access_token}`);
+                    });
+                }
+            }, 120000); // check every 2 minutes
+
             if (access_token) {
                 $('#login').hide();
                 $('#logged-in').show();

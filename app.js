@@ -78,6 +78,7 @@ app.get('/callback', function (req, res) {
             .then((response) => {
                 if (response.status === 200) {
                     response.json().then((data) => {
+                        let expires_in = data.expires_in * 1000; // 3600 seconds (default) = 1 hour
                         let access_token = data.access_token
                         let refresh_token = data.refresh_token
 
@@ -85,6 +86,7 @@ app.get('/callback', function (req, res) {
                             querystring.stringify({
                                 access_token: access_token,
                                 refresh_token: refresh_token,
+                                expires_in_ms: expires_in
                             }));
 
                     });

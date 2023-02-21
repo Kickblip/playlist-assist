@@ -44,7 +44,10 @@ const restartPlaybackManager = async () => {
     4. implement a token refresh system (check for token expiration on API calls)
     5. periodically sync the users live state with the server
     5. optimize for speed (reduce timer interval?)
+    6. restrict scopes to only what is needed
     6. cleanup time!
+    7. standardize var names
+    8. add comments
 
     PROBLEMS:
     1. interval seems to be doing ghost intervals after song is skipped
