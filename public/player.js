@@ -9,6 +9,8 @@ export default class Player {
         this.device_id = null;
         this.jump_ms = null;
         this.landing_ms = null;
+
+        this.jumped = false;
     }
     // gets a current state and queue from the Spotify API and returns the time it took
     async gatherData() {
@@ -62,6 +64,7 @@ export default class Player {
     async skipToNext() {
 
         console.log(`skipping from ${this.current_song.name} to ${this.next_song.name}`);
+        this.jumped = true;
 
         fetch(`https://api.spotify.com/v1/me/player/play${this.device_id && `?device_id=${this.device_id}`}`, {
             method: "PUT",
