@@ -6,7 +6,7 @@ spotify companion webapp for creating seamless, beat-matched transitions based o
 [![tiktok demo](https://img.youtube.com/vi/zvYPn4VN__0/0.jpg)](https://www.youtube.com/watch?v=zvYPn4VN__0)
 
 ## What data is the algorithm using?
-* Spotify Audio Feature Data
+* Spotify Audio Feature Data (characteristics spotify assigns to tracks)
   * acousticness
   * danceability
   * energy
