@@ -1,4 +1,4 @@
-# Knit-list Playlist Manager
+# Playlist Assist Playlist Manager
 spotify companion webapp for creating seamless, beat-matched transitions based on audio analysis
 
 ## [Check out the first test of Knit List here (it's a bit rough around the edges...)](https://youtube.com/shorts/zvYPn4VN__0?feature=share)
