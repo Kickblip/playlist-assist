@@ -53,6 +53,26 @@ export default class Player {
         document.getElementById('song-2-img').src = `${this.next_song.album.images[1].url}`;
         document.getElementById('player-header').innerText = `Now Playing ${this.current_song.name}`;
 
+        // convert this.jump_ms to a timestamp like xx:xx
+        let jump_min = Math.floor(this.jump_ms / 60000);
+        let jump_sec = ((this.jump_ms % 60000) / 1000).toFixed(0);
+        if (jump_sec == 60) {
+            jump_sec = '00';
+            jump_min++;
+        }
+        if (jump_sec < 10) jump_sec = '0' + jump_sec;
+
+        // do the same for this.landing_ms
+        let landing_min = Math.floor(this.landing_ms / 60000);
+        let landing_sec = ((this.landing_ms % 60000) / 1000).toFixed(0);
+        if (landing_sec == 60) {
+            landing_sec = '00';
+            landing_min++;
+        }
+        if (landing_sec < 10) landing_sec = '0' + landing_sec;
+
+        document.getElementById('jump-plan').innerText = `jumping at ${jump_min}:${jump_sec} and landing at ${landing_min}:${landing_sec}`;
+
         // show the label
         document.getElementById('queue-label').style.display = 'block';
 

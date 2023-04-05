@@ -65,8 +65,8 @@ const restartPlaybackManager = async () => {
 
 
     const loader_start = Date.now();
-    player.updateStage(playback_queue);
     player.setTimestamps();
+    player.updateStage(playback_queue);
     const loader_end = Date.now();
 
 
