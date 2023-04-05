@@ -35,9 +35,17 @@ h1 {
     margin: 10px;
 }
 
+#queue-label {
+    display: none;
+    /* position the element above the track-list */
+    position: fixed;
+    top: 10%;
+    left: 0;
+    margin-left: 10px;
+}
+
 #track-list {
     margin: 10px;
-    /* float: left; */
     position: fixed;
     top: 50%;
     left: 0;

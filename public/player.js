@@ -53,11 +53,12 @@ export default class Player {
         document.getElementById('song-2-img').src = `${this.next_song.album.images[1].url}`;
         document.getElementById('player-header').innerText = `Now Playing ${this.current_song.name}`;
 
+        // show the label
+        document.getElementById('queue-label').style.display = 'block';
 
         // fill the track-list div with the current queue
         let track_list = document.getElementById('track-list');
-        // set the innerhtml to a heading tag with the text 'Next Up'
-        track_list.innerHTML = '<h1>Next Up</h1>';
+        track_list.innerHTML = '';
         for (let i = 1; i < playback_queue.queue.length; i++) {
             let track = playback_queue.queue[i];
             let track_div = document.createElement('div');
