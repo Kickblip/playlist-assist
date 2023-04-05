@@ -65,7 +65,7 @@ const restartPlaybackManager = async () => {
 
 
     const loader_start = Date.now();
-    player.updateStage();
+    player.updateStage(playback_queue);
     player.setTimestamps();
     const loader_end = Date.now();
 
@@ -94,10 +94,10 @@ const restartPlaybackManager = async () => {
         const dt = Date.now() - current_progress; // the drift (positive for overshooting)
         if (dt > interval) {
             // special handling to deal with unexpectedly large drift
-            player.syncPlayer().then(() => {
-                current_progress = player.playback_state.progress_ms;
-                console.log(`synced player, new progress: ${current_progress}ms`);
-            }).catch(err => console.log(err))
+            // player.syncPlayer().then(() => {
+            //     current_progress = player.playback_state.progress_ms;
+            //     console.log(`synced player, new progress: ${current_progress}ms`);
+            // }).catch(err => console.log(err))
         }
         // check if player is within 100 ms of the jump
         if (current_progress >= player.jump_ms - interval && current_progress <= player.jump_ms + interval && !player.jumped) {

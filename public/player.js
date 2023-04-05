@@ -48,10 +48,11 @@ export default class Player {
         console.log(`jumping at ${this.jump_ms}ms and landing at ${this.landing_ms}ms`);
     }
     // update the HTML content of the player to reflect the current state of the playback queue
-    updateStage() {
+    updateStage(playback_queue) {
         document.getElementById('song-1-img').src = `${this.current_song.album.images[1].url}`;
         document.getElementById('song-2-img').src = `${this.next_song.album.images[1].url}`;
         document.getElementById('player-header').innerText = `Now Playing ${this.current_song.name}`;
+
 
         // fill the track-list div with the current queue
         let track_list = document.getElementById('track-list');
@@ -59,8 +60,20 @@ export default class Player {
         for (let i = 0; i < playback_queue.queue.length; i++) {
             let track = playback_queue.queue[i];
             let track_div = document.createElement('div');
-            track_div.className = 'track';
-            track_div.innerText = `${track.name} - ${track.artists[0].name}`;
+            track_div.className = 'queued-track';
+
+            // append a text element with the tracks title
+            let track_title = document.createElement('p');
+            track_title.innerText = track.name;
+            track_title.className = 'queued-track-title';
+            track_div.appendChild(track_title);
+
+            // add the tracks cover image to the div
+            let track_img = document.createElement('img');
+            track_img.src = `${track.album.images[1].url}`;
+            track_img.className = 'queued-track-img';
+            track_div.appendChild(track_img);
+
             track_list.appendChild(track_div);
         }
 

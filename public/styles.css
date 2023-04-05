@@ -3,7 +3,7 @@ body {
 }
 
 h1 {
-    color:aliceblue;
+    color: aliceblue;
 }
 
 #login {
@@ -19,19 +19,37 @@ h1 {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    text-align: left; /* align all text within the container to the left */
-    display: flex; /* make the container a flex container */
-    flex-direction: column; /* align items in a column */
-    align-items: flex-start; /* align items to the start of the container (left) */
+    text-align: left;
+    /* align all text within the container to the left */
+    display: flex;
+    /* make the container a flex container */
+    flex-direction: column;
+    /* align items in a column */
+    align-items: flex-start;
+    /* align items to the start of the container (left) */
 }
 
 #controller-buttons {
     margin: 10px;
 }
 
-.stage-track {
-    margin: 20px;
-    float:left;
+.queued-track {
+    color: white;
 }
 
+.queued-track-name {
+    font-size: 10px;
+    font-weight: bold;
+}
 
+.queued-track-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin: 10px;
+}
+
+.stage-track {
+    margin: 20px;
+    float: left;
+}
