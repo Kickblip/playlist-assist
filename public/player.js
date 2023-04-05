@@ -62,17 +62,24 @@ export default class Player {
             let track_div = document.createElement('div');
             track_div.className = 'queued-track';
 
-            // append a text element with the tracks title
-            let track_title = document.createElement('p');
-            track_title.innerText = track.name;
-            track_title.className = 'queued-track-title';
-            track_div.appendChild(track_title);
-
             // add the tracks cover image to the div
             let track_img = document.createElement('img');
             track_img.src = `${track.album.images[1].url}`;
-            track_img.className = 'queued-track-img';
             track_div.appendChild(track_img);
+
+            let track_info = document.createElement('div');
+            track_info.className = 'info';
+            track_div.appendChild(track_info);
+
+            // append a text element with the tracks title
+            let track_title = document.createElement('h2');
+            track_title.innerText = track.name;
+            track_info.appendChild(track_title);
+
+            // add the name of the artist
+            let track_artist = document.createElement('h3');
+            track_artist.innerText = track.artists[0].name;
+            track_info.appendChild(track_artist);
 
             track_list.appendChild(track_div);
         }
