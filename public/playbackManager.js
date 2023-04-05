@@ -19,6 +19,7 @@ TODO:
 7. standardize var names
 8. add comments
 9. add stop button
+10. profit
 
 PROBLEMS:
 2. after a jump is made the client side queue is only one song so if they restart the app it freaks out on a jump
