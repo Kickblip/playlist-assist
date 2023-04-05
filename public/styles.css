@@ -1,9 +1,11 @@
 body {
     background-color: rgb(0, 0, 27);
+    overflow-y: hidden;
+    overflow-x: hidden;
 }
 
 h1 {
-    color:aliceblue;
+    color: aliceblue;
 }
 
 #login {
@@ -19,19 +21,89 @@ h1 {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    text-align: left; /* align all text within the container to the left */
-    display: flex; /* make the container a flex container */
-    flex-direction: column; /* align items in a column */
-    align-items: flex-start; /* align items to the start of the container (left) */
+    text-align: left;
+    /* align all text within the container to the left */
+    display: flex;
+    /* make the container a flex container */
+    flex-direction: column;
+    /* align items in a column */
+    align-items: flex-start;
+    /* align items to the start of the container (left) */
+}
+
+#jump-plan {
+    color: aliceblue;
+    font-size: 18px;
+    position: fixed;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 10px;
 }
 
 #controller-buttons {
     margin: 10px;
 }
 
-.stage-track {
-    margin: 20px;
-    float:left;
+#queue-label {
+    display: none;
+    /* position the element above the track-list */
+    position: fixed;
+    top: 10%;
+    left: 0;
+    margin-left: 10px;
+}
+
+#track-list {
+    margin: 10px;
+    position: fixed;
+    top: 50%;
+    left: 0;
+    transform: translate(0, -50%);
+    max-width: 300px;
+    height: 500px;
+    overflow-y: auto;
+
 }
 
 
+.queued-track {
+    border: 1px solid aliceblue;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    max-width: 250px;
+    margin: 5px;
+}
+
+.queued-track img {
+    max-width: 75px;
+    margin-right: 10px;
+    border-radius: 5px;
+}
+
+.queued-track .info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: aliceblue;
+}
+
+.queued-track .info h2 {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0 0 10px;
+}
+
+.queued-track .info h3 {
+    font-size: 12px;
+    font-weight: normal;
+    margin: 0;
+}
+
+
+.stage-track {
+    margin: 20px;
+    float: left;
+}

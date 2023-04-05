@@ -48,10 +48,63 @@ export default class Player {
         console.log(`jumping at ${this.jump_ms}ms and landing at ${this.landing_ms}ms`);
     }
     // update the HTML content of the player to reflect the current state of the playback queue
-    updateStage() {
+    updateStage(playback_queue) {
         document.getElementById('song-1-img').src = `${this.current_song.album.images[1].url}`;
         document.getElementById('song-2-img').src = `${this.next_song.album.images[1].url}`;
         document.getElementById('player-header').innerText = `Now Playing ${this.current_song.name}`;
+
+        // convert this.jump_ms to a timestamp like xx:xx
+        let jump_min = Math.floor(this.jump_ms / 60000);
+        let jump_sec = ((this.jump_ms % 60000) / 1000).toFixed(0);
+        if (jump_sec == 60) {
+            jump_sec = '00';
+            jump_min++;
+        }
+        if (jump_sec < 10) jump_sec = '0' + jump_sec;
+
+        // do the same for this.landing_ms
+        let landing_min = Math.floor(this.landing_ms / 60000);
+        let landing_sec = ((this.landing_ms % 60000) / 1000).toFixed(0);
+        if (landing_sec == 60) {
+            landing_sec = '00';
+            landing_min++;
+        }
+        if (landing_sec < 10) landing_sec = '0' + landing_sec;
+
+        document.getElementById('jump-plan').innerText = `jumping at ${jump_min}:${jump_sec} and landing at ${landing_min}:${landing_sec}`;
+
+        // show the label
+        document.getElementById('queue-label').style.display = 'block';
+
+        // fill the track-list div with the current queue
+        let track_list = document.getElementById('track-list');
+        track_list.innerHTML = '';
+        for (let i = 1; i < playback_queue.queue.length; i++) {
+            let track = playback_queue.queue[i];
+            let track_div = document.createElement('div');
+            track_div.className = 'queued-track';
+
+            // add the tracks cover image to the div
+            let track_img = document.createElement('img');
+            track_img.src = `${track.album.images[1].url}`;
+            track_div.appendChild(track_img);
+
+            let track_info = document.createElement('div');
+            track_info.className = 'info';
+            track_div.appendChild(track_info);
+
+            // append a text element with the tracks title
+            let track_title = document.createElement('h2');
+            track_title.innerText = track.name;
+            track_info.appendChild(track_title);
+
+            // add the name of the artist
+            let track_artist = document.createElement('h3');
+            track_artist.innerText = track.artists[0].name;
+            track_info.appendChild(track_artist);
+
+            track_list.appendChild(track_div);
+        }
 
     }
 
@@ -75,6 +128,20 @@ export default class Player {
         }).catch(e => console.error(e));
 
     };
+
+    async syncPlayer() {
+        const syncStart = Date.now();
+        getPlaybackState(this.access_token).then((response) => {
+            this.playback_state = response.playback_state;
+
+            const syncEnd = Date.now();
+            const syncTime = syncEnd - syncStart;
+
+            return [response.playback_state, syncTime];
+        }).catch(e => console.error(e));
+
+
+    }
 
 };
 
