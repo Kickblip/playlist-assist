@@ -56,8 +56,9 @@ export default class Player {
 
         // fill the track-list div with the current queue
         let track_list = document.getElementById('track-list');
-        track_list.innerHTML = '';
-        for (let i = 0; i < playback_queue.queue.length; i++) {
+        // set the innerhtml to a heading tag with the text 'Next Up'
+        track_list.innerHTML = '<h1>Next Up</h1>';
+        for (let i = 1; i < playback_queue.queue.length; i++) {
             let track = playback_queue.queue[i];
             let track_div = document.createElement('div');
             track_div.className = 'queued-track';
