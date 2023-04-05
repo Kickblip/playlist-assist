@@ -11,7 +11,6 @@ import Player from './player.js';
 
 TODO:
 1. create a system for organizing an entire playlist by tempo and bpm
-2. figure out what is causing the error codes to pop when a jump is made
 3. change the algorithm 
 4. periodically sync the users live state with the server
 5. optimize for speed (reduce timer interval?)
@@ -19,9 +18,9 @@ TODO:
 6. cleanup time!
 7. standardize var names
 8. add comments
+9. add stop button
 
 PROBLEMS:
-1. interval seems to be doing ghost intervals after song is skipped
 2. after a jump is made the client side queue is only one song so if they restart the app it freaks out on a jump
 
 */
@@ -91,10 +90,14 @@ const restartPlaybackManager = async () => {
 
     setTimeout(step, interval);
     function step() {
-        console.log(current_progress);
+        // console.log(current_progress);
         const dt = Date.now() - current_progress; // the drift (positive for overshooting)
         if (dt > interval) {
             // special handling to deal with unexpectedly large drift
+            player.syncPlayer().then(() => {
+                current_progress = player.playback_state.progress_ms;
+                console.log(`synced player, new progress: ${current_progress}ms`);
+            }).catch(err => console.log(err))
         }
         // check if player is within 100 ms of the jump
         if (current_progress >= player.jump_ms - interval && current_progress <= player.jump_ms + interval && !player.jumped) {

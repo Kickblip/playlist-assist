@@ -53,6 +53,17 @@ export default class Player {
         document.getElementById('song-2-img').src = `${this.next_song.album.images[1].url}`;
         document.getElementById('player-header').innerText = `Now Playing ${this.current_song.name}`;
 
+        // fill the track-list div with the current queue
+        let track_list = document.getElementById('track-list');
+        track_list.innerHTML = '';
+        for (let i = 0; i < playback_queue.queue.length; i++) {
+            let track = playback_queue.queue[i];
+            let track_div = document.createElement('div');
+            track_div.className = 'track';
+            track_div.innerText = `${track.name} - ${track.artists[0].name}`;
+            track_list.appendChild(track_div);
+        }
+
     }
 
     selectNewJump() {
@@ -75,6 +86,20 @@ export default class Player {
         }).catch(e => console.error(e));
 
     };
+
+    async syncPlayer() {
+        const syncStart = Date.now();
+        getPlaybackState(this.access_token).then((response) => {
+            this.playback_state = response.playback_state;
+
+            const syncEnd = Date.now();
+            const syncTime = syncEnd - syncStart;
+
+            return [response.playback_state, syncTime];
+        }).catch(e => console.error(e));
+
+
+    }
 
 };
 
