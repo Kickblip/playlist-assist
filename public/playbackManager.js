@@ -6,6 +6,7 @@ let next_song;
 let current_progress = 0;
 
 import Player from './player.js';
+import Timer from './timer.js';
 
 /*
 
@@ -87,57 +88,65 @@ const restartPlaybackManager = async () => {
     current_progress = player.playback_state.progress_ms + total_setup_time;
     console.log(`current progress: ${current_progress}ms`);
 
-    const interval = 100; // ms
+    const timer = new Timer(() => {
+        console.log('it ran!')
+    }, 1000);
+    timer.start();
 
-    setTimeout(step, interval);
-    function step() {
-        // console.log(current_progress);
-        const dt = Date.now() - current_progress; // the drift (positive for overshooting)
-        if (dt > interval) {
-            // special handling to deal with unexpectedly large drift
-            // player.syncPlayer().then(() => {
-            //     current_progress = player.playback_state.progress_ms;
-            //     console.log(`synced player, new progress: ${current_progress}ms`);
-            // }).catch(err => console.log(err))
-        }
-        // check if player is within 100 ms of the jump
-        if (current_progress >= player.jump_ms - interval && current_progress <= player.jump_ms + interval && !player.jumped) {
-            player.skipToNext().then(() => {
 
-                current_song = playback_queue.queue[playlist_position];
-                console.log(`new current song: ${current_song.name}`);
 
-                playlist_position++; // increase by one for next song in queue
-                next_song = playback_queue.queue[playlist_position];
-                console.log(`new next song: ${next_song.name}`);
 
-                current_progress = 0;
-                player = null;
-
-                clearTimeout(step);
-
-                // wait 3 second before restarting playback manager to allow for spotify to update
-                setTimeout(restartPlaybackManager, 3000);
-
-                return;
-
-            }).catch(err => console.log(err));
-
-        } else if (current_progress > player.jump_ms + 50) {
-            console.log('jump missed, picking a new target jump');
-            player.selectNewJump();
-        }
-
-        // update current progress with state fetches to account for changes
-        if (!player.jumped) {
-            current_progress += interval;
-            // setTimeout(step, Math.max(0, interval - dt));
-            setTimeout(step, interval); // take into account drift? (possible point of delay)
-        } else {
-            return;
-        };
-
-    };
 };
 
 
+
+// const interval = 100; // ms
+// setTimeout(step, interval);
+// function step() {
+//     // console.log(current_progress);
+//     const dt = Date.now() - current_progress; // the drift (positive for overshooting)
+//     if (dt > interval) {
+//         // special handling to deal with unexpectedly large drift
+//         // player.syncPlayer().then(() => {
+//         //     current_progress = player.playback_state.progress_ms;
+//         //     console.log(`synced player, new progress: ${current_progress}ms`);
+//         // }).catch(err => console.log(err))
+//     }
+//     // check if player is within 100 ms of the jump
+//     if (current_progress >= player.jump_ms - interval && current_progress <= player.jump_ms + interval && !player.jumped) {
+//         player.skipToNext().then(() => {
+
+//             current_song = playback_queue.queue[playlist_position];
+//             console.log(`new current song: ${current_song.name}`);
+
+//             playlist_position++; // increase by one for next song in queue
+//             next_song = playback_queue.queue[playlist_position];
+//             console.log(`new next song: ${next_song.name}`);
+
+//             current_progress = 0;
+//             player = null;
+
+//             clearTimeout(step);
+
+//             // wait 3 second before restarting playback manager to allow for spotify to update
+//             setTimeout(restartPlaybackManager, 3000);
+
+//             return;
+
+//         }).catch(err => console.log(err));
+
+//     } else if (current_progress > player.jump_ms + 50) {
+//         console.log('jump missed, picking a new target jump');
+//         player.selectNewJump();
+//     }
+
+//     // update current progress with state fetches to account for changes
+//     if (!player.jumped) {
+//         current_progress += interval;
+//         // setTimeout(step, Math.max(0, interval - dt));
+//         setTimeout(step, interval); // take into account drift? (possible point of delay)
+//     } else {
+//         return;
+//     };
+
+// };
