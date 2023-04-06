@@ -86,11 +86,46 @@ const restartPlaybackManager = async () => {
     console.log('total setup time: ' + total_setup_time + 'ms');
 
     current_progress = player.playback_state.progress_ms + total_setup_time;
+    let target_date = Date.now() + (playback_queue.currently_playing.duration_ms - current_progress);
+    console.log(target_date);
     console.log(`current progress: ${current_progress}ms`);
 
-    const timer = new Timer(() => {
-        console.log('it ran!')
-    }, 1000);
+    let timer = new Timer(() => {
+        // code that is ran on every interval
+    }, 100, target_date,
+        () => {
+            // special handling to deal with unexpectedly large drift
+            console.log('tokyo drift')
+
+        },
+        () => {
+            // time to jump to the next song
+            player.skipToNext().then(() => {
+                // TODO: jump doesnt work with new timer
+
+                current_song = playback_queue.queue[playlist_position];
+                console.log(`new current song: ${current_song.name}`);
+
+                playlist_position++; // increase by one for next song in queue
+                next_song = playback_queue.queue[playlist_position];
+                console.log(`new next song: ${next_song.name}`);
+
+                // reset timer and player to shut them up
+                player = null;
+                timer = null;
+
+                // wait 3 second before restarting playback manager to allow for spotify to update
+                setTimeout(restartPlaybackManager, 5000);
+
+                return;
+
+            }).catch(err => console.log(err));
+
+        },
+        () => {
+            // missed the target date, oopsie :P
+        });
+
     timer.start();
 
 
@@ -98,7 +133,10 @@ const restartPlaybackManager = async () => {
 
 };
 
-
+// player.syncPlayer().then(() => {
+//     current_progress = player.playback_state.progress_ms;
+//     console.log(`synced player, new progress: ${current_progress}ms`);
+// }).catch(err => console.log(err))
 
 // const interval = 100; // ms
 // setTimeout(step, interval);
