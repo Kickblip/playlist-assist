@@ -29,6 +29,13 @@ export default function Timer(callback, timeInterval, targetDate, errorCallback,
             // Missed the target date
             if (missedCallback) missedCallback();
         };
+        console.log(this.expected);
+
+        // 1681225411119
+
+        // 1681225411248
+
+        // the target date is way past the actual jump date
 
         callback();
         this.expected += this.timeInterval;

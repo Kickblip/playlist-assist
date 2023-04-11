@@ -78,17 +78,51 @@ const restartPlaybackManager = async () => {
     console.log(`loader time: ${loader_end - loader_start}ms`);
 
     const total_setup_time = analysis_fetch_ms + state_fetch_ms + queue_fetch_ms + (loader_end - loader_start);
-    console.log(`setup took: ${total_setup_time}ms`);
+
 
 
     // calculate user's current progress in the song based on request delay
-    console.log('progress_ms: ' + player.playback_state.progress_ms + 'ms');
-    console.log('total setup time: ' + total_setup_time + 'ms');
 
+    // 206000
+    // 3:13 + 0:12 = 3:25
+    // expressed in ms is 205000 duration is one second off actual(?)
     current_progress = player.playback_state.progress_ms + total_setup_time;
     let target_date = Date.now() + (playback_queue.currently_playing.duration_ms - current_progress);
-    console.log(target_date);
-    console.log(`current progress: ${current_progress}ms`);
+
+    console.log('progress_ms: ' + player.playback_state.progress_ms + 'ms');
+    console.log(`setup took: ${total_setup_time}ms`);
+
+    console.log(`current date: ${Date.now()}`);
+    console.log(`target date: ${target_date}`);
+    console.log(`remaining time: ${playback_queue.currently_playing.duration_ms - current_progress}ms`);
+    console.log(`duration: ${playback_queue.currently_playing.duration_ms}ms`);
+
+    // progress_ms: 107486ms
+    // total setup time: 2682ms
+    // current date: 1681228316825
+    // target date:  1681228427833
+    // remaining time: 111008ms
+
+    // duration: 221176ms
+
+
+
+
+
+    // 1:43
+    // expressed in ms is 103000
+    // progress_ms: 102773ms <--- less than 300 ms off
+
+    // 1:43 + 1:58 = 3:41
+    // expressed in ms is 221896
+    // 221896 - 102773 = 119123
+    // remaining time: 116896ms <--- remaining time is 2 seconds off
+
+    // target date: 1681227513820
+
+    // 1681227513820 - 116896 = 1681227396924
+
+    //current progress: 104280ms
 
     let timer = new Timer(() => {
         // code that is ran on every interval
