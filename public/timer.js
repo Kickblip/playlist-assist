@@ -1,4 +1,4 @@
-export default function Timer(callback, timeInterval, targetDate, errorCallback, jumpCallback, missedCallback) {
+export default function Timer(callback, timeInterval, errorCallback) {
     this.timeInterval = timeInterval;
     // Start timer
     this.start = () => {
@@ -19,27 +19,8 @@ export default function Timer(callback, timeInterval, targetDate, errorCallback,
             // Something really bad happened. Maybe the browser (tab) was inactive?
             if (errorCallback) errorCallback();
         };
-
-        if (this.expected >= targetDate - this.timeInterval && this.expected <= targetDate + this.timeInterval) {
-            // Time to jump to the next song
-            if (jumpCallback) jumpCallback();
-        };
-
-        if (this.expected > targetDate) {
-            // Missed the target date
-            if (missedCallback) missedCallback();
-        };
-        console.log(this.expected);
-
-        // 1681225411119
-
-        // 1681225411248
-
-        // the target date is way past the actual jump date
-
         callback();
         this.expected += this.timeInterval;
-        // console.log(this.expected); // current unix epoch timestamp
         this.timeout = setTimeout(this.round, this.timeInterval - drift); // take into account drift
     }
 }

@@ -80,7 +80,6 @@ const restartPlaybackManager = async () => {
     const total_setup_time = analysis_fetch_ms + state_fetch_ms + queue_fetch_ms + (loader_end - loader_start);
 
 
-
     // calculate user's current progress in the song based on request delay
 
     // 206000
@@ -124,16 +123,13 @@ const restartPlaybackManager = async () => {
 
     //current progress: 104280ms
 
+    const interval = 100;
+
     let timer = new Timer(() => {
         // code that is ran on every interval
-    }, 100, target_date,
-        () => {
-            // special handling to deal with unexpectedly large drift
-            console.log('tokyo drift')
 
-        },
-        () => {
-            // time to jump to the next song
+        if ((current_progress >= player.jump_ms - interval) && (current_progress <= player.jump_ms + interval)) {
+            // Time to jump to the next song
             player.skipToNext().then(() => {
                 // TODO: jump doesnt work with new timer
 
@@ -154,16 +150,21 @@ const restartPlaybackManager = async () => {
                 return;
 
             }).catch(err => console.log(err));
+        };
 
-        },
+        if (current_progress > player.jump_ms) {
+            // Missed the target jump, oopsie :P
+
+        };
+        current_progress += interval;
+
+    }, interval,
         () => {
-            // missed the target date, oopsie :P
+            // special handling to deal with unexpectedly large drift
+            console.log('tokyo drift')
         });
 
     timer.start();
-
-
-
 
 };
 
