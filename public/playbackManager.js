@@ -7,6 +7,7 @@ let current_progress = 0;
 
 import Player from './player.js';
 import Timer from './timer.js';
+import { organizeQueue } from './reshuffler.js';
 
 /*
 
@@ -52,7 +53,10 @@ document.getElementById('start-listener').addEventListener('click', function () 
 
         playback_queue.unshift(current_song);
 
-        organizeQueue().then(() => {
+        organizeQueue(playback_queue).then((shuffled_queue) => {
+
+            playback_queue = shuffled_queue;
+
             console.log(playback_queue);
 
             current_song = playback_queue.currently_playing;
@@ -154,24 +158,4 @@ const restartPlaybackManager = async () => {
 
     timer.start();
 
-};
-
-const organizeQueue = async () => {
-
-    // concatenate all the track IDs into a single string seperated by commas
-    let track_ids = playback_queue.map(track => track.id).join(',');
-
-    // get the audio features for all the tracks in the queue
-    const audio_features = await $.ajax({
-        url: "https://api.spotify.com/v1/audio-features",
-        method: "GET",
-        data: {
-            ids: track_ids
-        },
-        headers: {
-            "Authorization": `Bearer ${access_token}` // Replace {access_token} with a valid access token
-        }
-    }).catch(err => console.log(err));
-
-    console.log(audio_features);
 };
