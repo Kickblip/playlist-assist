@@ -46,29 +46,23 @@ document.getElementById('start-listener').addEventListener('click', function () 
         console.log(current_song);
 
 
-        playback_queue = playlist.tracks.items.map((item) => {
-            return item.track;
+        playback_queue = playlist.tracks.items.map(item => item.track);
+
+        playback_queue = playback_queue.filter(track => track.id !== current_song.id)
+
+        playback_queue.unshift(current_song);
+
+        organizeQueue().then(() => {
+            console.log(playback_queue);
+
+            current_song = playback_queue.currently_playing;
+            next_song = playback_queue.queue[playlist_position];
+
+            console.log(playback_queue);
+
+            restartPlaybackManager();
         });
 
-        for (let i = 0; i < playback_queue.length; i++) {
-            if (playback_queue[i].id === current_song.id) {
-                // delete index
-                playback_queue.splice(i, 1);
-            }
-        };
-
-
-
-        console.log(playback_queue);
-
-
-
-        current_song = playback_queue.currently_playing;
-        next_song = playback_queue.queue[playlist_position];
-
-        console.log(playback_queue);
-
-        restartPlaybackManager();
 
     });
 
@@ -160,4 +154,24 @@ const restartPlaybackManager = async () => {
 
     timer.start();
 
+};
+
+const organizeQueue = async () => {
+
+    // concatenate all the track IDs into a single string seperated by commas
+    let track_ids = playback_queue.map(track => track.id).join(',');
+
+    // get the audio features for all the tracks in the queue
+    const audio_features = await $.ajax({
+        url: "https://api.spotify.com/v1/audio-features",
+        method: "GET",
+        data: {
+            ids: track_ids
+        },
+        headers: {
+            "Authorization": `Bearer ${access_token}` // Replace {access_token} with a valid access token
+        }
+    }).catch(err => console.log(err));
+
+    console.log(audio_features);
 };

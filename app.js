@@ -139,26 +139,29 @@ app.get('/check-state', function (req, res) {
     setTimeout(checkPlaybackState, 1000);
     function checkPlaybackState() {
         playbackFunctions.getPlaybackState(access_token).then((response) => {
-            if (response) {
+            if (response.status === 200) {
 
-                const request_start_time = Date.now();
+                response.json().then((data) => {
 
-                const state = response;
-                const playlistId = response.context.uri.split(':')[2];
+                    const request_start_time = Date.now();
 
-                playbackFunctions.getCurrentPlaylist(access_token, playlistId).then((playlist) => {
+                    const state = data;
+                    const playlistId = data.context.uri.split(':')[2];
 
-                    const time_taken = Date.now() - request_start_time;
-                    const response_timestamp = Date.now();
+                    playbackFunctions.getCurrentPlaylist(access_token, playlistId).then((playlist) => {
 
-                    // maximum length for the playlist is 100 tracks
-                    res.send({
-                        'playlist': playlist,
-                        'current_song': state.item,
-                        'fulfillment_time': time_taken,
-                        'timestamp': response_timestamp
+                        const time_taken = Date.now() - request_start_time;
+                        const response_timestamp = Date.now();
+
+                        // maximum length for the playlist is 100 tracks
+                        res.send({
+                            'playlist': playlist,
+                            'current_song': state.item,
+                            'fulfillment_time': time_taken,
+                            'timestamp': response_timestamp
+                        });
+
                     });
-
                 });
 
             } else {
