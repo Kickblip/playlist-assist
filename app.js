@@ -139,17 +139,22 @@ app.get('/check-state', function (req, res) {
     setTimeout(checkPlaybackState, 1000);
     function checkPlaybackState() {
         playbackFunctions.getPlaybackState(access_token).then((response) => {
-            if (response.status === 200) {
+            if (response) {
 
                 const request_start_time = Date.now();
 
-                playbackFunctions.getQueue(access_token).then((playback_queue) => {
+                const state = response;
+                const playlistId = response.context.uri.split(':')[2];
+
+                playbackFunctions.getCurrentPlaylist(access_token, playlistId).then((playlist) => {
 
                     const time_taken = Date.now() - request_start_time;
                     const response_timestamp = Date.now();
 
+                    // maximum length for the playlist is 100 tracks
                     res.send({
-                        'playback_queue': playback_queue,
+                        'playlist': playlist,
+                        'current_song': state.item,
                         'fulfillment_time': time_taken,
                         'timestamp': response_timestamp
                     });

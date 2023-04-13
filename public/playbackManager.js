@@ -39,8 +39,29 @@ document.getElementById('start-listener').addEventListener('click', function () 
         }
     }).done(function (response) {
 
-        playback_queue = response.playback_queue;
+        const playlist = response.playlist;
         queue_fetch_ms = (Date.now() - response.timestamp) + response.fulfillment_time;
+
+        const current_song = response.current_song;
+        console.log(current_song);
+
+
+        playback_queue = playlist.tracks.items.map((item) => {
+            return item.track;
+        });
+
+        for (let i = 0; i < playback_queue.length; i++) {
+            if (playback_queue[i].id === current_song.id) {
+                // delete index
+                playback_queue.splice(i, 1);
+            }
+        };
+
+
+
+        console.log(playback_queue);
+
+
 
         current_song = playback_queue.currently_playing;
         next_song = playback_queue.queue[playlist_position];
@@ -96,33 +117,6 @@ const restartPlaybackManager = async () => {
     console.log(`remaining time: ${playback_queue.currently_playing.duration_ms - current_progress}ms`);
     console.log(`duration: ${playback_queue.currently_playing.duration_ms}ms`);
 
-    // progress_ms: 107486ms
-    // total setup time: 2682ms
-    // current date: 1681228316825
-    // target date:  1681228427833
-    // remaining time: 111008ms
-
-    // duration: 221176ms
-
-
-
-
-
-    // 1:43
-    // expressed in ms is 103000
-    // progress_ms: 102773ms <--- less than 300 ms off
-
-    // 1:43 + 1:58 = 3:41
-    // expressed in ms is 221896
-    // 221896 - 102773 = 119123
-    // remaining time: 116896ms <--- remaining time is 2 seconds off
-
-    // target date: 1681227513820
-
-    // 1681227513820 - 116896 = 1681227396924
-
-    //current progress: 104280ms
-
     const interval = 100;
 
     let timer = new Timer(() => {
@@ -167,59 +161,3 @@ const restartPlaybackManager = async () => {
     timer.start();
 
 };
-
-// player.syncPlayer().then(() => {
-//     current_progress = player.playback_state.progress_ms;
-//     console.log(`synced player, new progress: ${current_progress}ms`);
-// }).catch(err => console.log(err))
-
-// const interval = 100; // ms
-// setTimeout(step, interval);
-// function step() {
-//     // console.log(current_progress);
-//     const dt = Date.now() - current_progress; // the drift (positive for overshooting)
-//     if (dt > interval) {
-//         // special handling to deal with unexpectedly large drift
-//         // player.syncPlayer().then(() => {
-//         //     current_progress = player.playback_state.progress_ms;
-//         //     console.log(`synced player, new progress: ${current_progress}ms`);
-//         // }).catch(err => console.log(err))
-//     }
-//     // check if player is within 100 ms of the jump
-//     if (current_progress >= player.jump_ms - interval && current_progress <= player.jump_ms + interval && !player.jumped) {
-//         player.skipToNext().then(() => {
-
-//             current_song = playback_queue.queue[playlist_position];
-//             console.log(`new current song: ${current_song.name}`);
-
-//             playlist_position++; // increase by one for next song in queue
-//             next_song = playback_queue.queue[playlist_position];
-//             console.log(`new next song: ${next_song.name}`);
-
-//             current_progress = 0;
-//             player = null;
-
-//             clearTimeout(step);
-
-//             // wait 3 second before restarting playback manager to allow for spotify to update
-//             setTimeout(restartPlaybackManager, 3000);
-
-//             return;
-
-//         }).catch(err => console.log(err));
-
-//     } else if (current_progress > player.jump_ms + 50) {
-//         console.log('jump missed, picking a new target jump');
-//         player.selectNewJump();
-//     }
-
-//     // update current progress with state fetches to account for changes
-//     if (!player.jumped) {
-//         current_progress += interval;
-//         // setTimeout(step, Math.max(0, interval - dt));
-//         setTimeout(step, interval); // take into account drift? (possible point of delay)
-//     } else {
-//         return;
-//     };
-
-// };

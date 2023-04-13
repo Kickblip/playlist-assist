@@ -17,6 +17,7 @@ export default class Player {
 
         const playbackStateFetch = await getPlaybackState(this.access_token);
 
+
         this.playback_state = playbackStateFetch.playback_state;
         this.device_id = this.playback_state.device.id;
         console.log(this.playback_state);
