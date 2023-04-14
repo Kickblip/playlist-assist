@@ -15,40 +15,39 @@ const organizeQueue = async (playback_queue) => {
         }
     }).catch(err => console.log(err));
 
-    console.log(audio_features)
+    console.log(audio_features);
 
-    // Extract the relevant feature values from each object
     audio_features = audio_features.audio_features.map(feature => {
-        return {                            // example values:
-            id: feature.id,                 // 6y0igZArWVi6Iz0rj35c1Y
-            vectors: [
-                feature.acousticness,       // 0.0339
-                feature.danceability,       // 0.557
-                feature.energy,             // 0.54
-                feature.instrumentalness,   // 0.00248
-                feature.key,                // 9
-                feature.liveness,           // 0.179
-                feature.loudness,           // -10.484
-                feature.mode,               // 1
-                feature.speechiness,        // 0.0347
-                feature.tempo,              // 129.171
-                feature.time_signature,     // 4
-                feature.valence,            // 0.394
+        return {
+            id: feature.id,
+            vector: [
+                feature.acousticness,
+                feature.danceability,
+                feature.energy,
+                feature.instrumentalness,
+                feature.key,
+                feature.liveness,
+                feature.loudness,
+                feature.mode,
+                feature.speechiness,
+                feature.tempo,
+                feature.time_signature,
+                feature.valence
             ]
         };
     });
 
-    console.log(audio_features)
-
     // store the features of the first song because it needs to remain constant
     const current_song = audio_features[0];
 
+    // extract the vectors from the audio features
+    const vectors = audio_features.map(feature => feature.vector);
 
     // Define the number of clusters you want to use
     const numClusters = 5;
 
     // Define a function to calculate the Euclidean distance between two vectors
-    function euclideanDistance(a, b) {
+    const euclideanDistance = (a, b) => {
         let sum = 0;
         for (let i = 0; i < a.length; i++) {
             sum += (a[i] - b[i]) ** 2;
@@ -57,7 +56,7 @@ const organizeQueue = async (playback_queue) => {
     }
 
     // Define a function to randomly initialize the cluster centroids
-    function initializeCentroids(vectors, numClusters) {
+    const initializeCentroids = (vectors, numClusters) => {
         const centroids = [];
         for (let i = 0; i < numClusters; i++) {
             const randomIndex = Math.floor(Math.random() * vectors.length);
@@ -67,7 +66,7 @@ const organizeQueue = async (playback_queue) => {
     }
 
     // Define a function to assign each vector to the closest cluster centroid
-    function assignToClusters(vectors, centroids) {
+    const assignToClusters = (vectors, centroids) => {
         const clusters = Array.from({ length: numClusters }, () => []);
         for (let i = 0; i < vectors.length; i++) {
             let closestCentroid = null;
@@ -85,7 +84,7 @@ const organizeQueue = async (playback_queue) => {
     }
 
     // Define a function to calculate the new cluster centroids based on the current assignments
-    function calculateNewCentroids(clusters) {
+    const calculateNewCentroids = (clusters) => {
         const centroids = [];
         for (let i = 0; i < clusters.length; i++) {
             if (clusters[i].length === 0) {
@@ -102,7 +101,7 @@ const organizeQueue = async (playback_queue) => {
     }
 
     // Define a function to check if the cluster assignments have converged
-    function hasConverged(oldAssignments, newAssignments) {
+    const hasConverged = (oldAssignments, newAssignments) => {
         for (let i = 0; i < oldAssignments.length; i++) {
             if (oldAssignments[i].length !== newAssignments[i].length) {
                 return false;
@@ -117,14 +116,14 @@ const organizeQueue = async (playback_queue) => {
     }
 
     // Run the K-means algorithm
-    let centroids = initializeCentroids(audio_features.vectors, numClusters);
+    // Run the K-means algorithm
+    let centroids = initializeCentroids(vectors, numClusters);
     let assignments = [];
     let converged = false;
     while (!converged) {
-        assignments = assignToClusters(audio_features.vectors, centroids);
-        const newCentroids = calculateNewCentroids
-            (assignments);
-        converged = hasConverged(assignments, assignToClusters(audio_features.vectors, newCentroids));
+        assignments = assignToClusters(vectors, centroids);
+        const newCentroids = calculateNewCentroids(assignments);
+        converged = hasConverged(assignments, assignToClusters(vectors, newCentroids));
         centroids = newCentroids;
     }
 
@@ -138,7 +137,18 @@ const organizeQueue = async (playback_queue) => {
     }
 
     // Concatenate the vectors within each cluster to get your final sorted list
-    const sortedVectors = assignments.flat();
+    const rearrangedVectors = [current_song.vector]; // add the first song to the beginning
+    for (let i = 0; i < assignments.length; i++) {
+        const cluster = assignments[i];
+        for (let j = 0; j < cluster.length; j++) {
+            if (i === 0 && j === 0) {
+                continue; // skip the first song because it's already added
+            }
+            rearrangedVectors.push(cluster[j]);
+        }
+    }
+
+    console.log(rearrangedVectors);
 
 };
 
