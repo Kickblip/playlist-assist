@@ -12,7 +12,7 @@ import { organizeQueue } from './reshuffler.js';
 /*
 
 TODO:
-1. create a system for organizing an entire playlist by tempo and bpm
+1. add tempo and bpm to shuffler
 3. change the algorithm 
 4. periodically sync the users live state with the server
 5. optimize for speed (reduce timer interval?)
@@ -157,5 +157,19 @@ const restartPlaybackManager = async () => {
         });
 
     timer.start();
+
+    // every 20 seconds run the resync the player with the server
+    setInterval(() => {
+        player.resync().then((res) => {
+            console.log(res)
+            const response_time = Date.now() - res.fetch_timestamp
+            console.log(res.playback_state);
+            current_progress = res.playback_state.progress_ms + response_time;
+
+            console.log('resynced');
+        }).catch(err => console.log(err));
+    }
+        , 30000);
+
 
 };

@@ -135,19 +135,23 @@ export default class Player {
 
     };
 
-    async syncPlayer() {
+    async resync() {
         const syncStart = Date.now();
-        getPlaybackState(this.access_token).then((response) => {
+        try {
+            const response = await getPlaybackState(this.access_token);
             this.playback_state = response.playback_state;
-
             const syncEnd = Date.now();
             const syncTime = syncEnd - syncStart;
-
-            return [response.playback_state, syncTime];
-        }).catch(e => console.error(e));
-
-
+            return {
+                'playback_state': response.playback_state,
+                'sync_time': syncTime,
+                'fetch_timestamp': syncEnd
+            };
+        } catch (error) {
+            console.error(error);
+        }
     }
+
 
 };
 
