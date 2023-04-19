@@ -80,8 +80,8 @@ export default class Player {
         // fill the track-list div with the current queue
         let track_list = document.getElementById('track-list');
         track_list.innerHTML = '';
-        for (let i = 1; i < playback_queue.queue.length; i++) {
-            let track = playback_queue.queue[i];
+        for (let i = 1; i < playback_queue.length; i++) {
+            let track = playback_queue[i];
             let track_div = document.createElement('div');
             track_div.className = 'queued-track';
 
@@ -96,7 +96,12 @@ export default class Player {
 
             // append a text element with the tracks title
             let track_title = document.createElement('h2');
-            track_title.innerText = track.name;
+            // if the track name is longer than 20 characters, truncate it
+            if (track.name.length > 30) {
+                track_title.innerText = track.name.substring(0, 30) + '...';
+            } else {
+                track_title.innerText = track.name;
+            }
             track_info.appendChild(track_title);
 
             // add the name of the artist

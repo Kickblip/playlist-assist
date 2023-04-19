@@ -43,7 +43,7 @@ document.getElementById('start-listener').addEventListener('click', function () 
         const playlist = response.playlist;
         queue_fetch_ms = (Date.now() - response.timestamp) + response.fulfillment_time;
 
-        const current_song = response.current_song;
+        current_song = response.current_song;
         console.log(current_song);
 
 
@@ -59,8 +59,8 @@ document.getElementById('start-listener').addEventListener('click', function () 
 
             console.log(playback_queue);
 
-            current_song = playback_queue.currently_playing;
-            next_song = playback_queue.queue[playlist_position];
+            current_song = playback_queue[0];
+            next_song = playback_queue[playlist_position + 1]; // playlist_position starts at 0
 
             console.log(playback_queue);
 
@@ -105,15 +105,15 @@ const restartPlaybackManager = async () => {
     // 3:13 + 0:12 = 3:25
     // expressed in ms is 205000 duration is one second off actual(?)
     current_progress = player.playback_state.progress_ms + total_setup_time;
-    let target_date = Date.now() + (playback_queue.currently_playing.duration_ms - current_progress);
+    let target_date = Date.now() + (playback_queue[playlist_position].duration_ms - current_progress);
 
     console.log('progress_ms: ' + player.playback_state.progress_ms + 'ms');
     console.log(`setup took: ${total_setup_time}ms`);
 
     console.log(`current date: ${Date.now()}`);
     console.log(`target date: ${target_date}`);
-    console.log(`remaining time: ${playback_queue.currently_playing.duration_ms - current_progress}ms`);
-    console.log(`duration: ${playback_queue.currently_playing.duration_ms}ms`);
+    console.log(`remaining time: ${playback_queue[playlist_position].duration_ms - current_progress}ms`);
+    console.log(`duration: ${playback_queue[playlist_position].duration_ms}ms`);
 
     const interval = 100;
 
@@ -125,11 +125,11 @@ const restartPlaybackManager = async () => {
             player.skipToNext().then(() => {
                 // TODO: jump doesnt work with new timer
 
-                current_song = playback_queue.queue[playlist_position];
+                current_song = playback_queue[playlist_position + 1];
                 console.log(`new current song: ${current_song.name}`);
 
                 playlist_position++; // increase by one for next song in queue
-                next_song = playback_queue.queue[playlist_position];
+                next_song = playback_queue[playlist_position + 1];
                 console.log(`new next song: ${next_song.name}`);
 
                 // reset timer and player to shut them up

@@ -70,9 +70,6 @@ const organizeQueue = async (playback_queue) => {
     let queue = audio_features.slice(1);
     let organized_queue = [current_song];
 
-    console.log(audio_features)
-    console.log(queue)
-
 
     const organizeQueue = (queue, current_song, organized_queue = []) => {
         if (queue.length === 0) {
@@ -98,9 +95,21 @@ const organizeQueue = async (playback_queue) => {
     organizeQueue(queue, current_song, organized_queue);
 
 
+    console.log(audio_features);
     console.log(organized_queue);
 
 
+    // use the organized IDs from the organized_queue to reorganize the playback_queue in the same order
+    let new_playback_queue = [];
+    for (let i = 0; i < organized_queue.length; i++) {
+        for (let j = 0; j < playback_queue.length; j++) {
+            if (playback_queue[j].id === organized_queue[i].id) {
+                new_playback_queue.push(playback_queue[j]);
+            }
+        }
+    }
+
+    return new_playback_queue;
 
 
 };
