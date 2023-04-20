@@ -1,6 +1,4 @@
-import Terminal from './utils/logger.js';
-let terminal = new Terminal();
-
+import Terminal from './logger.js';
 
 export default class Player {
     constructor(current_song, next_song, access_token) {
@@ -19,6 +17,8 @@ export default class Player {
     // gets a current state and queue from the Spotify API and returns the time it took
     async gatherData() {
 
+        let terminal = new Terminal();
+
         const playbackStateFetch = await getPlaybackState(this.access_token);
 
 
@@ -31,9 +31,8 @@ export default class Player {
         const analysisFetch = await getAnalysis(this.access_token, this.current_song, this.next_song);
         this.analysis_array = analysisFetch.analysis_array;
 
-        // testing
         console.log(this.analysis_array);
-        terminal.log(`Analysis data fetched in ${analysisFetch.fetch_time}`)
+        terminal.log(`${this.analysis_array.length} jumps found in ${analysisFetch.fetch_time}ms`)
 
         const analysis_fetch_ms = analysisFetch.fetch_time;
 

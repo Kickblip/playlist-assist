@@ -5,7 +5,7 @@ let current_song;
 let next_song;
 let current_progress = 0;
 
-import Player from './utils/player.js';
+import Player from './utils/player.js'
 import Timer from './utils/timer.js';
 import Terminal from './utils/logger.js';
 import { organizeQueue } from './utils/reshuffler.js';
@@ -87,7 +87,7 @@ const restartPlaybackManager = async () => {
 
     const analysis_fetch_ms = dataTimers.analysis_fetch_ms;
     const state_fetch_ms = dataTimers.state_fetch_ms;
-    terminal.log(`Analysis data fetched in ${analysis_fetch_ms}ms, beginning comparison...`)
+    terminal.log(`Analysis data fetched, beginning comparison...`)
 
 
     const loader_start = Date.now();
