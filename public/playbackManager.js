@@ -14,6 +14,7 @@ import { organizeQueue } from './utils/reshuffler.js';
 
 TODO:
 1. add tempo and bpm to shuffler
+2. pick a new date if it gets missed
 3. change the algorithm 
 5. optimize for speed (reduce timer interval?)
 6. restrict scopes to only what is needed
@@ -80,7 +81,10 @@ const restartPlaybackManager = async () => {
     let player = new Player(current_song, next_song, access_token);
     let terminal = new Terminal();
 
-    terminal.log('Initialized terminal');
+    if (playlist_position === 0) { // only have to log this once per session
+        terminal.log('Initialized terminal');
+    }
+
     terminal.log('Fetching analysis data...');
 
     const dataTimers = await player.gatherData();
@@ -94,7 +98,7 @@ const restartPlaybackManager = async () => {
     player.setTimestamps();
     player.updateStage(playback_queue, playlist_position);
     const loader_end = Date.now();
-    terminal.log(`Comparison completed in ${loader_end - loader_start}, beginning playback...`)
+    terminal.log(`Setup complete, listening for jumps!`)
 
     console.log(`analysis fetch time: ${analysis_fetch_ms}ms`);
     console.log(`state fetch time: ${state_fetch_ms}ms`);
@@ -137,6 +141,8 @@ const restartPlaybackManager = async () => {
                 next_song = playback_queue[playlist_position + 1];
                 console.log(`new next song: ${next_song.name}`);
 
+                terminal.log(`Jumped to ${current_song.name} by ${current_song.artists[0].name}`);
+                terminal.log('Restarting playback manager...');
 
 
                 // reset timer and player to shut them up
@@ -144,7 +150,7 @@ const restartPlaybackManager = async () => {
                 timer = null;
 
                 // wait 3 second before restarting playback manager to allow for spotify to update
-                setTimeout(restartPlaybackManager, 5000);
+                setTimeout(restartPlaybackManager, 3000);
 
                 return;
 
