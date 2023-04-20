@@ -5,16 +5,16 @@ let current_song;
 let next_song;
 let current_progress = 0;
 
-import Player from './player.js';
-import Timer from './timer.js';
-import { organizeQueue } from './reshuffler.js';
+import Player from './utils/player.js';
+import Timer from './utils/timer.js';
+import Terminal from './utils/logger.js';
+import { organizeQueue } from './utils/reshuffler.js';
 
 /*
 
 TODO:
 1. add tempo and bpm to shuffler
 3. change the algorithm 
-4. periodically sync the users live state with the server
 5. optimize for speed (reduce timer interval?)
 6. restrict scopes to only what is needed
 6. cleanup time!
@@ -78,18 +78,23 @@ const restartPlaybackManager = async () => {
 
 
     let player = new Player(current_song, next_song, access_token);
+    let terminal = new Terminal();
+
+    terminal.log('Initialized terminal');
+    terminal.log('Fetching analysis data...');
 
     const dataTimers = await player.gatherData();
 
     const analysis_fetch_ms = dataTimers.analysis_fetch_ms;
     const state_fetch_ms = dataTimers.state_fetch_ms;
+    terminal.log(`Analysis data fetched in ${analysis_fetch_ms}ms, beginning comparison...`)
 
 
     const loader_start = Date.now();
     player.setTimestamps();
-    player.updateStage(playback_queue);
+    player.updateStage(playback_queue, playlist_position);
     const loader_end = Date.now();
-
+    terminal.log(`Comparison completed in ${loader_end - loader_start}, beginning playback...`)
 
     console.log(`analysis fetch time: ${analysis_fetch_ms}ms`);
     console.log(`state fetch time: ${state_fetch_ms}ms`);
@@ -131,6 +136,8 @@ const restartPlaybackManager = async () => {
                 playlist_position++; // increase by one for next song in queue
                 next_song = playback_queue[playlist_position + 1];
                 console.log(`new next song: ${next_song.name}`);
+
+
 
                 // reset timer and player to shut them up
                 player = null;

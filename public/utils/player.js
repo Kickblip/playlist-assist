@@ -1,3 +1,7 @@
+import Terminal from './utils/logger.js';
+let terminal = new Terminal();
+
+
 export default class Player {
     constructor(current_song, next_song, access_token) {
         this.current_song = current_song;
@@ -29,6 +33,7 @@ export default class Player {
 
         // testing
         console.log(this.analysis_array);
+        terminal.log(`Analysis data fetched in ${analysisFetch.fetch_time}`)
 
         const analysis_fetch_ms = analysisFetch.fetch_time;
 
@@ -49,7 +54,7 @@ export default class Player {
         console.log(`jumping at ${this.jump_ms}ms and landing at ${this.landing_ms}ms`);
     }
     // update the HTML content of the player to reflect the current state of the playback queue
-    updateStage(playback_queue) {
+    updateStage(playback_queue, playlist_position) {
         document.getElementById('song-1-img').src = `${this.current_song.album.images[1].url}`;
         document.getElementById('song-2-img').src = `${this.next_song.album.images[1].url}`;
         document.getElementById('player-header').innerText = `Now Playing ${this.current_song.name}`;
@@ -80,7 +85,7 @@ export default class Player {
         // fill the track-list div with the current queue
         let track_list = document.getElementById('track-list');
         track_list.innerHTML = '';
-        for (let i = 1; i < playback_queue.length; i++) {
+        for (let i = playlist_position + 2; i < playback_queue.length; i++) {
             let track = playback_queue[i];
             let track_div = document.createElement('div');
             track_div.className = 'queued-track';
