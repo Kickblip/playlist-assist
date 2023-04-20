@@ -171,7 +171,7 @@ const restartPlaybackManager = async () => {
 
     timer.start();
 
-    // every 20 seconds run the resync the player with the server
+    // every 15 seconds run the resync the player with the server
     setInterval(() => {
         player.resync().then((res) => {
             console.log(res)
@@ -182,7 +182,7 @@ const restartPlaybackManager = async () => {
             console.log('resynced');
         }).catch(err => console.log(err));
     }
-        , 30000);
+        , 15000);
 
 
 };
