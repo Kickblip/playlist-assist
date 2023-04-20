@@ -78,8 +78,9 @@ export default class Player {
 
         document.getElementById('jump-plan').innerText = `jumping at ${jump_min}:${jump_sec} and landing at ${landing_min}:${landing_sec}`;
 
-        // show the label
-        document.getElementById('queue-label').style.display = 'block';
+        // reveal the terminal
+        document.getElementById('terminal').style.display = 'block';
+
 
         // fill the track-list div with the current queue
         let track_list = document.getElementById('track-list');

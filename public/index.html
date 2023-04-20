@@ -15,30 +15,27 @@
         <h1>Playlist Assist</h1>
         <a href="/login" class="btn btn-primary">Log in with Spotify</a>
     </div>
+
     <div id="logged-in">
-        <h1 id="queue-label">Next Up</h1>
-        <div id="track-list">
-        </div>
-        <container id="content">
+        <div id="track-list"></div>
+
+        <div id="content">
             <h1 id="player-header">Logged in with Spotify</h1>
             <div id="song-stage">
-                <div class='stage-track' id="song-1">
-                    <img id='song-1-img' src="./assets/missingtrack.png" alt="missing image" width="300" height="300">
+                <div class="stage-track" id="song-1">
+                    <img id="song-1-img" src="./assets/missingtrack.png" alt="missing image" width="300" height="300">
                 </div>
-                <div class='stage-track' id="song-2">
-                    <img id='song-2-img' src="./assets/missingtrack.png" alt="missing image" width="300" height="300">
+                <div class="stage-track" id="song-2">
+                    <img id="song-2-img" src="./assets/missingtrack.png" alt="missing image" width="300" height="300">
                 </div>
             </div>
             <div id="controller-buttons">
                 <button class="btn btn-primary" id="start-listener">Start</button>
             </div>
             <h3 id="jump-plan"></h3>
-
-        </container>
-        <div id="terminal">
         </div>
 
-
+        <div id="terminal"></div>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
     <script>
