@@ -11,7 +11,10 @@ import Terminal from './utils/logger.js';
 import { organizeQueue } from './utils/reshuffler.js';
 
 let terminal = new Terminal();
+let timer;
+let player;
 
+document.getElementById('stop-listener').disabled = true;
 
 /*
 
@@ -26,6 +29,7 @@ TODO:
 8. add comments
 9. add stop button
 10. profit
+11. switch to timer.stop()
 
 PROBLEMS:
 2. after a jump is made the client side queue is only one song so if they restart the app it freaks out on a jump
@@ -36,6 +40,7 @@ document.getElementById('start-listener').addEventListener('click', function () 
 
     // prevent this function from being called multiple times by multiple presses of the button
     this.disabled = true;
+    document.getElementById('stop-listener').disabled = false;
     document.getElementById('player-header').innerText = `Listening for a Playlist...`;
 
 
@@ -90,7 +95,7 @@ const restartPlaybackManager = async () => {
     console.log('RESTARTING PLAYBACK MANAGER');
 
 
-    let player = new Player(current_song, next_song, access_token);
+    player = new Player(current_song, next_song, access_token);
 
     if (playlist_position === 0) { // only have to log this once per session
         terminal.log('Initialized terminal');
@@ -137,7 +142,7 @@ const restartPlaybackManager = async () => {
 
     const interval = 100;
 
-    let timer = new Timer(() => {
+    timer = new Timer(() => {
         // code that is ran on every interval
 
         if ((current_progress >= player.jump_ms - interval) && (current_progress <= player.jump_ms + interval)) {
@@ -155,7 +160,6 @@ const restartPlaybackManager = async () => {
                 terminal.log(`Jumped to ${current_song.name} by ${current_song.artists[0].name}`);
                 terminal.log('Restarting playback manager...');
                 terminal.log('- - - - - - - - - - - - - - - - - - - - - -')
-
 
                 // reset timer and player to shut them up
                 player = null;
@@ -198,3 +202,31 @@ const restartPlaybackManager = async () => {
 
 
 };
+
+
+
+document.getElementById('stop-listener').addEventListener('click', function () {
+
+    this.disabled = true;
+    document.getElementById('start-listener').disabled = false;
+
+
+
+    document.getElementById('player-header').innerText = `Logged in with Spotify`;
+    document.getElementById('song-1-img').src = './assets/missingtrack.png';
+    document.getElementById('song-2-img').src = './assets/missingtrack.png';
+
+    timer.stop();
+    player = null;
+
+
+
+    document.getElementById('track-list').innerHTML = '';
+    document.getElementById('jump-plan').style.display = 'none';
+
+
+    terminal.log('Playlist Assist stopped - thanks for using!');
+
+
+
+});

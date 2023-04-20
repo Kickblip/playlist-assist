@@ -77,6 +77,7 @@ export default class Player {
         if (landing_sec < 10) landing_sec = '0' + landing_sec;
 
         document.getElementById('jump-plan').innerText = `jumping at ${jump_min}:${jump_sec} and landing at ${landing_min}:${landing_sec}`;
+        document.getElementById('jump-plan').style.display = 'block';
 
 
         // fill the track-list div with the current queue
