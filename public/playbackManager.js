@@ -10,6 +10,9 @@ import Timer from './utils/timer.js';
 import Terminal from './utils/logger.js';
 import { organizeQueue } from './utils/reshuffler.js';
 
+let terminal = new Terminal();
+
+
 /*
 
 TODO:
@@ -33,6 +36,8 @@ document.getElementById('start-listener').addEventListener('click', function () 
 
     // prevent this function from being called multiple times by multiple presses of the button
     this.disabled = true;
+    document.getElementById('player-header').innerText = `Listening for a Playlist...`;
+
 
     $.ajax({
         url: '/check-state',
@@ -40,6 +45,9 @@ document.getElementById('start-listener').addEventListener('click', function () 
             'access_token': access_token,
         }
     }).done(function (response) {
+
+        // reveal the terminal
+        document.getElementById('terminal').style.display = 'block';
 
         const playlist = response.playlist;
         queue_fetch_ms = (Date.now() - response.timestamp) + response.fulfillment_time;
@@ -54,7 +62,11 @@ document.getElementById('start-listener').addEventListener('click', function () 
 
         playback_queue.unshift(current_song);
 
+        terminal.log(`Playlist fetched in ${queue_fetch_ms}ms`);
+
         organizeQueue(playback_queue).then((shuffled_queue) => {
+
+            terminal.log('Queue shuffled successfully!');
 
             playback_queue = shuffled_queue;
 
@@ -79,7 +91,6 @@ const restartPlaybackManager = async () => {
 
 
     let player = new Player(current_song, next_song, access_token);
-    let terminal = new Terminal();
 
     if (playlist_position === 0) { // only have to log this once per session
         terminal.log('Initialized terminal');
@@ -143,6 +154,7 @@ const restartPlaybackManager = async () => {
 
                 terminal.log(`Jumped to ${current_song.name} by ${current_song.artists[0].name}`);
                 terminal.log('Restarting playback manager...');
+                terminal.log('- - - - - - - - - - - - - - - - - - - - - -')
 
 
                 // reset timer and player to shut them up
