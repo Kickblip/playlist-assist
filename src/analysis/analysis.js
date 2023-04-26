@@ -1,8 +1,43 @@
 const { performance } = require('perf_hooks');
+const math = require('./math.js');
 
-const getTrackAnalysis = async (token, trackId) => {
 
-    const result = await fetch(`https://api.spotify.com/v1/audio-analysis/${trackId}`, {
+/**
+@param {string} token - User access token for Spotify
+@param {string} current_song_id - Spotify track id for the current song
+@param {string} next_song_id - Spotify track id for the next song
+@param {number} range - Optional parameter for specifying the range of audio segments to compare
+@returns {Array} An array of possible jumps where every jump is represented as an array of two millisecond values
+[ 245011.84, 7644.99 ] where the first value is the jump timestamp and the second value is the landing timestamp
+*/
+
+const compareTrackIds = async (token, current_song_id, next_song_id, range = 20) => {
+
+    // returns Spotify's audio analysis for a given track id
+    const current_song = await getTrackAnalysis(token, current_song_id);
+    const next_song = await getTrackAnalysis(token, next_song_id);
+
+    // slice segment arrays to only include a given range of segments
+    const current_song_segments = current_song.segments.slice((range * -1));
+    const next_song_segments = next_song.segments.slice(0, range);
+
+    // compare segments and return possible jumps
+    const possible_jumps = compareSongSegments(current_song_segments, next_song_segments);
+    console.log(possible_jumps)
+    return possible_jumps;
+
+};
+
+
+/**
+@param {string} token - User access token for Spotify
+@param {string} track_id - Spotify track id for a single song
+@returns {Object} Spotify's audio analysis for a given track id
+*/
+
+const getTrackAnalysis = async (token, track_id) => {
+
+    const result = await fetch(`https://api.spotify.com/v1/audio-analysis/${track_id}`, {
         method: 'GET',
         headers: { 'Authorization': 'Bearer ' + token }
     })
@@ -12,13 +47,7 @@ const getTrackAnalysis = async (token, trackId) => {
     return data
 }
 
-const getEuclideanDistance = (arr1, arr2) => {
-    let result = 0;
-    for (let i = 0; i < arr1.length; i++) {
-        result += (arr1[i] - arr2[i]) ** 2;
-    };
-    return Math.sqrt(result);
-};
+
 
 const getPitch = (arr) => {
     let pitches = [];
@@ -37,7 +66,7 @@ const getPitch = (arr) => {
 
 // add confidence rating so algo can make the best decision
 const analyzeSegment = (seg1, seg2) => {
-    const euclidean_distance = getEuclideanDistance(seg1['timbre'], seg2['timbre'])
+    const euclidean_distance = math.euclideanDistance(seg1['timbre'], seg2['timbre'])
     const dominant_pitches = [getPitch(seg1['pitches']), getPitch(seg2['pitches'])];
     let shared_pitches = [];
 
@@ -74,23 +103,7 @@ const compareSongSegments = (arr1, arr2) => {
 
 };
 
-const compareTrackIds = async (token, current_song_id, next_song_id, range = 20) => {
-
-    // returns Spotify's audio analysis for a given track id
-    const current_song = await getTrackAnalysis(token, current_song_id);
-    const next_song = await getTrackAnalysis(token, next_song_id);
-
-    // slice segment arrays to only include a given range of segments
-    const current_song_segments = current_song.segments.slice((range * -1));
-    const next_song_segments = next_song.segments.slice(0, range);
-
-    // compare segments and return possible jumps
-    const possibleJumps = compareSongSegments(current_song_segments, next_song_segments);
-    return possibleJumps;
-
-};
 
 
 
-
-module.exports = { getTrackAnalysis, compareSongSegments, compareTrackIds };
+module.exports = { compareTrackIds };

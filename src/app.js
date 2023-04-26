@@ -2,8 +2,8 @@ const express = require('express');
 const querystring = require('querystring');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
-const { getPlaybackState, getCurrentPlaylist } = require('./src/playbackFunctions')
-const { compareTrackIds } = require('./src/analysis');
+const { getPlaybackState, getCurrentPlaylist } = require('./api/playbackFunctions.js')
+const { compareTrackIds } = require('./analysis/analysis.js');
 
 require('dotenv').config();
 
@@ -27,7 +27,7 @@ let state_key = 'spotify_auth_state'; // name of the cookie
 
 let app = express();
 
-app.use(express.static(__dirname + '/public'))
+app.use(express.static('public'))
     .use(cors())
     .use(cookieParser());
 
@@ -131,9 +131,8 @@ app.get('/check-state', async (req, res) => {
 
     const checkPlaybackState = async () => {
         try {
-            const response = await getPlaybackState(access_token);
+            const { response, data } = await getPlaybackState(access_token);
             if (response.status === 200) {
-                const data = await response.json();
                 const request_start_time = Date.now();
                 const playlistId = data.context.uri.split(':')[2];
                 const playlist = await getCurrentPlaylist(access_token, playlistId);
@@ -158,6 +157,7 @@ app.get('/check-state', async (req, res) => {
 
     setTimeout(checkPlaybackState, 1000);
 });
+
 
 app.get('/get-analysis', (req, res) => {
 
