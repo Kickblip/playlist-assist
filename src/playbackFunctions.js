@@ -1,44 +1,43 @@
-const getQueue = async (token) => {
+const fetchWithErrorHandling = async (url, options) => {
+    try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+        return { response, data };
+    } catch (error) {
+        console.error(error);
+        return { response: null, data: null };
+    }
+};
 
-    const result = await fetch(`https://api.spotify.com/v1/me/player/queue`, {
+const getQueue = async (token) => {
+    const { data } = await fetchWithErrorHandling(`https://api.spotify.com/v1/me/player/queue`, {
         method: 'GET',
         headers: { 'Authorization': 'Bearer ' + token }
     });
-
-    const data = await result.json();
-    return data
-
-}
+    return data;
+};
 
 const getPlaybackState = async (token) => {
-
-    // state is returned NOT as a json
-    const result = await fetch(`https://api.spotify.com/v1/me/player`, {
+    const { response, data } = await fetchWithErrorHandling(`https://api.spotify.com/v1/me/player`, {
         method: 'GET',
         headers: { 'Authorization': 'Bearer ' + token }
     });
 
-
-    if (result.status === 200) {
-        console.log('valid state found - locking playback')
-        return result;
+    if (response && response.status === 200) {
+        console.log('valid state found - locking playback');
     } else {
-        console.log(`getPlaybackState failed with error ${result.status}`);
-        return result;
-    };
+        console.log(`getPlaybackState failed with error ${response.status}`);
+    }
+
+    return response;
 };
 
 const getCurrentPlaylist = async (token, playlistId) => {
-
-    const result = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}/`, {
+    const { data } = await fetchWithErrorHandling(`https://api.spotify.com/v1/playlists/${playlistId}/`, {
         method: 'GET',
         headers: { 'Authorization': 'Bearer ' + token }
-    })
-        .catch(e => console.error(e));
-
-    const data = await result.json();
+    });
     return data;
-
 };
 
 

@@ -134,7 +134,8 @@ export default class Player {
             headers: {
                 'Authorization': `Bearer ${this.access_token}`
             }
-        }).catch(e => console.error(e));
+        })
+            .catch(e => console.error(e));
 
     };
 
@@ -165,7 +166,8 @@ const getPlaybackState = async (access_token) => {
     const result = await fetch(`https://api.spotify.com/v1/me/player`, {
         method: 'GET',
         headers: { 'Authorization': 'Bearer ' + access_token }
-    });
+    })
+        .catch(e => console.error(e));
 
     const data = await result.json();
     const fetch_time = Date.now() - req_start_time;
@@ -188,15 +190,18 @@ const getAnalysis = async (access_token, current_song, next_song) => {
                 'current_song_id': current_song.id,
                 'next_song_id': next_song.id
             }
-        }).done((response) => {
-            const analysis_array = response.analysis_array;
-            const fetch_time = ((Date.now() - response.timestamp) + response.fulfillment_time);
+        })
+            .catch(e => console.error(e))
 
-            resolve({
-                'analysis_array': analysis_array,
-                'fetch_time': fetch_time
+            .done((response) => {
+                const analysis_array = response.analysis_array;
+                const fetch_time = ((Date.now() - response.timestamp) + response.fulfillment_time);
+
+                resolve({
+                    'analysis_array': analysis_array,
+                    'fetch_time': fetch_time
+                });
             });
-        });
 
     });
 };

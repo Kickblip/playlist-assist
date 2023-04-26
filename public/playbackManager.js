@@ -206,11 +206,8 @@ const restartPlaybackManager = async () => {
 
 
 document.getElementById('stop-listener').addEventListener('click', function () {
-
     this.disabled = true;
     document.getElementById('start-listener').disabled = false;
-
-
 
     document.getElementById('player-header').innerText = `Logged in with Spotify`;
     document.getElementById('song-1-img').src = './assets/missingtrack.png';
@@ -219,14 +216,9 @@ document.getElementById('stop-listener').addEventListener('click', function () {
     timer.stop();
     player = null;
 
-
-
     document.getElementById('track-list').innerHTML = '';
     document.getElementById('jump-plan').style.display = 'none';
 
-
-    terminal.log('Playlist Assist stopped - thanks for using!');
-
-
+    terminal.log('Listener stopped - thanks for using Playlist Assist!');
 
 });
