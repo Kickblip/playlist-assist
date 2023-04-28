@@ -43,23 +43,41 @@ const compareTracks = (current_song_analysis, next_song_analysis, range) => {
     const current_song_segments = current_song_analysis.segments.slice((range * -1));
     const next_song_segments = next_song_analysis.segments.slice(0, range);
 
+    // add the similarity of each possible jump then sort by similarity
+    // only save the jumps with the highest similarity
+    // prevents 0-jump errors
 
-    let possible_jumps = [];
+    let jumps = [];
     for (let i = 0; i < current_song_segments.length; i++) {
         for (let j = 0; j < next_song_segments.length; j++) {
             const vector1 = [current_song_segments[i].loudness_start, current_song_segments[i].loudness_max, current_song_segments[i].loudness_max_time, current_song_segments[i].loudness_end];
             const vector2 = [next_song_segments[j].loudness_start, next_song_segments[j].loudness_max, next_song_segments[j].loudness_max_time, next_song_segments[j].loudness_end];
 
-            const similarity = math.euclideanDistance(vector1, vector2);
+            const distance = math.euclideanDistance(vector1, vector2);
 
-            if (similarity < 0.5) {
-                const jump_ms = (current_song_segments[i].start * 1000);
-                const landing_ms = (next_song_segments[j].start * 1000);
-                possible_jumps.push([jump_ms, landing_ms]); // add segments that meet criteria to possible jumps
-            };
+            jumps.push([current_song_segments[i], next_song_segments[j], distance]); // add segments that meet criteria to possible jumps
         };
-
     };
+
+    // sort the jumps array by similarity
+    jumps.sort((a, b) => {
+        return b[2] - a[2];
+    });
+
+    // return the top 15 jumps (array sorted from big to small distance)
+    let possible_jumps = jumps.slice(-15);
+
+    // reverse the array so that the jumps are sorted from smallest to largest distance
+    possible_jumps.reverse();
+
+    // go through the possible jumps and remove the distance value from each jump
+    // then replace the jump/landing with the start and end times in milliseconds
+    possible_jumps = possible_jumps.map(jump => {
+        const jump_ms = jump[0].start * 1000;
+        const landing_ms = jump[1].start * 1000;
+        return [jump_ms, landing_ms];
+    });
+
 
     let end_time = performance.now()
     console.log(`${possible_jumps.length} possible jumps found in ${end_time - start_time} milliseconds`);
