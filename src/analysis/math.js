@@ -14,5 +14,29 @@ const normalize = (vector) => {
     return vector.map((val) => (val - mean) / stdDev);
 };
 
+const vectorizeSegment = (segment, keys) => {
 
-module.exports = { euclideanDistance, normalize };
+    let vector = segment.map(segment => {
+        return {
+            id: feature.id,
+            vector: [
+                feature.acousticness,
+                feature.danceability,
+                feature.energy,
+                feature.instrumentalness,
+                feature.key,
+                feature.liveness,
+                feature.loudness,
+                feature.mode,
+                feature.speechiness,
+                feature.tempo,
+                feature.time_signature,
+                feature.valence
+            ]
+        };
+    });
+
+}
+
+
+module.exports = { euclideanDistance, normalize, vectorizeSegment };

@@ -3,7 +3,7 @@ const querystring = require('querystring');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const { getPlaybackState, getCurrentPlaylist } = require('./api/playbackFunctions.js')
-const { compareTrackIds } = require('./analysis/analysis.js');
+const { analyzeTracks } = require('./analysis/analysis.js');
 
 require('dotenv').config();
 
@@ -167,7 +167,7 @@ app.get('/get-analysis', (req, res) => {
     const current_song_id = req.query.current_song_id;
     const next_song_id = req.query.next_song_id;
 
-    compareTrackIds(access_token, current_song_id, next_song_id, 50).then((analysis_array) => {
+    analyzeTracks(access_token, current_song_id, next_song_id, 50).then((analysis_array) => {
         const response_timestamp = Date.now()
         const time_taken = Date.now() - request_start_time;
 

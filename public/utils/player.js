@@ -43,8 +43,8 @@ export default class Player {
 
     }
     setTimestamps() {
-        // pick a target segment from the array (random for now)
-        const target_timestamp = this.analysis_array[Math.floor(Math.random() * this.analysis_array.length)];
+        // pick a target segment from the array (first for now)
+        const target_timestamp = this.analysis_array[0];
 
         // set target/jump ms values
         this.jump_ms = target_timestamp[0];

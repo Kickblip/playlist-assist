@@ -19,6 +19,7 @@ document.getElementById('stop-listener').disabled = true;
 /*
 
 TODO:
+1. if the analysis array is empty, just pick the last segment of the song - prevents errors
 1. add tempo and bpm to shuffler
 2. pick a new date if it gets missed
 3. change the algorithm 
