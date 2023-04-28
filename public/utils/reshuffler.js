@@ -42,7 +42,18 @@ const organizeQueue = async (playback_queue) => {
     // store the features of the first song because it needs to remain constant
     const current_song = audio_features[0];
 
-    function cosineSimilarity(vectorA, vectorB) {
+    const normalize = (vector) => {
+        const mean = vector.reduce((a, b) => a + b) / vector.length;
+        const stdDev = Math.sqrt(
+            vector.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / (vector.length - 1)
+        );
+        return vector.map((val) => (val - mean) / stdDev);
+    };
+
+    const cosineSimilarity = (vectorA, vectorB) => {
+        vectorA = normalize(vectorA);
+        vectorB = normalize(vectorB);
+
         if (vectorA.length !== vectorB.length) {
             throw new Error('Vectors must be of the same length');
         }
@@ -108,6 +119,8 @@ const organizeQueue = async (playback_queue) => {
             }
         }
     }
+
+
 
     return new_playback_queue;
 
