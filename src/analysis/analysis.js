@@ -40,7 +40,7 @@ const compareTracks = (current_song_analysis, next_song_analysis, range) => {
     let start_time = performance.now()
 
     // slice segment arrays to only include a given range of segments
-    const current_song_segments = current_song_analysis.segments.slice((range * -1));
+    const current_song_segments = current_song_analysis.segments.slice((range * -1) - 10, -10); // offset by 10 to avoid jumping at end of song
     const next_song_segments = next_song_analysis.segments.slice(0, range);
 
     // add the similarity of each possible jump then sort by similarity
@@ -50,12 +50,28 @@ const compareTracks = (current_song_analysis, next_song_analysis, range) => {
     let jumps = [];
     for (let i = 0; i < current_song_segments.length; i++) {
         for (let j = 0; j < next_song_segments.length; j++) {
-            const vector1 = [current_song_segments[i].loudness_start, current_song_segments[i].loudness_max, current_song_segments[i].loudness_max_time, current_song_segments[i].loudness_end];
-            const vector2 = [next_song_segments[j].loudness_start, next_song_segments[j].loudness_max, next_song_segments[j].loudness_max_time, next_song_segments[j].loudness_end];
 
-            const distance = math.euclideanDistance(vector1, vector2);
+            const current_segment = current_song_segments[i];
+            const next_segment = next_song_segments[j];
 
-            jumps.push([current_song_segments[i], next_song_segments[j], distance]); // add segments that meet criteria to possible jumps
+            // create vectors from the loudness values of each segment
+            const vector1 = [current_segment.loudness_start, current_segment.loudness_max, current_segment.loudness_max_time, current_segment.loudness_end];
+            const vector2 = [next_segment.loudness_start, next_segment.loudness_max, next_segment.loudness_max_time, next_segment.loudness_end];
+
+            // measure euclidean distance between loudness vectors
+            const loudness_distance = math.euclideanDistance(vector1, vector2);
+
+
+
+            // measure euclidean distance between timbre vectors
+            const timbre_distance = math.euclideanDistance(current_segment.timbre, next_segment.timbre);
+
+            // average the two distances
+            const similarity = (loudness_distance + timbre_distance) / 2;
+
+            jumps.push([current_segment, next_segment, similarity]);
+
+
         };
     };
 
@@ -63,6 +79,12 @@ const compareTracks = (current_song_analysis, next_song_analysis, range) => {
     jumps.sort((a, b) => {
         return b[2] - a[2];
     });
+
+    let end_time = performance.now()
+    console.log(`${jumps.length} possible jumps found in ${end_time - start_time} milliseconds`);
+
+
+
 
     // return the top 15 jumps (array sorted from big to small distance)
     let possible_jumps = jumps.slice(-15);
@@ -79,8 +101,7 @@ const compareTracks = (current_song_analysis, next_song_analysis, range) => {
     });
 
 
-    let end_time = performance.now()
-    console.log(`${possible_jumps.length} possible jumps found in ${end_time - start_time} milliseconds`);
+
     return possible_jumps;
 };
 

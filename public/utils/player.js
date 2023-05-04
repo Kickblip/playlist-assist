@@ -44,10 +44,10 @@ export default class Player {
     }
     setTimestamps() {
         // pick a target segment from the array (first for now)
-        const target_timestamp = this.analysis_array[1];
+        const target_timestamp = this.analysis_array[0];
 
         // set target/jump ms values
-        this.jump_ms = target_timestamp[0] + 1500;
+        this.jump_ms = target_timestamp[0];
         this.landing_ms = target_timestamp[1];
 
         console.log(`jumping at ${this.jump_ms}ms and landing at ${this.landing_ms}ms`);
