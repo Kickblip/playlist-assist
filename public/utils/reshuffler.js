@@ -1,5 +1,20 @@
 const organizeQueue = async (playback_queue) => {
 
+    //log the duration of every song in the playback queue
+    playback_queue.forEach(song => {
+        // convert the duration from ms to a human-readable format like x:xx
+        let min = Math.floor(song.duration_ms / 60000);
+        let sec = ((song.duration_ms % 60000) / 1000).toFixed(0);
+        if (sec == 60) {
+            sec = '00';
+            min++;
+        }
+        if (sec < 10) sec = '0' + sec;
+        const timestamp = `${min}:${sec}`;
+        console.log(song.name, song.duration_ms, timestamp);
+    });
+
+
     // concatenate all the track IDs into a single string seperated by commas
     let track_ids = playback_queue.map(track => track.id).join(',');
 

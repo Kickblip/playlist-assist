@@ -4,6 +4,7 @@ let queue_fetch_ms;
 let current_song;
 let next_song;
 let current_progress = 0;
+let resyncTimer;
 
 import Player from './utils/player.js'
 import Timer from './utils/timer.js';
@@ -19,6 +20,8 @@ document.getElementById('stop-listener').disabled = true;
 /*
 
 TODO:
+// seems to be jumping slightly early
+// could be caused by the resyncs
 1. add tempo and bpm to shuffler
 2. pick a new date if it gets missed
 3. change the algorithm 
@@ -49,7 +52,7 @@ document.getElementById('start-listener').addEventListener('click', function () 
         data: {
             'access_token': access_token,
         }
-    }).done(function (response) {
+    }).done((response) => {
 
         // reveal the terminal
         document.getElementById('terminal').style.display = 'block';
@@ -124,11 +127,6 @@ const restartPlaybackManager = async () => {
     const total_setup_time = analysis_fetch_ms + state_fetch_ms + queue_fetch_ms + (loader_end - loader_start);
 
 
-    // calculate user's current progress in the song based on request delay
-
-    // 206000
-    // 3:13 + 0:12 = 3:25
-    // expressed in ms is 205000 duration is one second off actual(?)
     current_progress = player.playback_state.progress_ms + total_setup_time;
     let target_date = Date.now() + (playback_queue[playlist_position].duration_ms - current_progress);
 
@@ -188,12 +186,10 @@ const restartPlaybackManager = async () => {
     timer.start();
 
     // every 15 seconds run the resync the player with the server
-    setInterval(() => {
+    resyncTimer = setInterval(() => {
         player.resync().then((res) => {
-            console.log(res)
             const response_time = Date.now() - res.fetch_timestamp
-            console.log(res.playback_state);
-            current_progress = res.playback_state.progress_ms + response_time;
+            current_progress = res.playback_state.progress_ms + response_time + res.sync_time;
 
             console.log('resynced');
         }).catch(err => console.log(err));
@@ -208,6 +204,8 @@ const restartPlaybackManager = async () => {
 document.getElementById('stop-listener').addEventListener('click', function () {
     this.disabled = true;
     document.getElementById('start-listener').disabled = false;
+
+    clearInterval(resyncTimer);
 
     document.getElementById('player-header').innerText = `Logged in with Spotify`;
     document.getElementById('song-1-img').src = './assets/missingtrack.png';
