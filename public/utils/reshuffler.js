@@ -1,20 +1,5 @@
 const organizeQueue = async (playback_queue) => {
 
-    //log the duration of every song in the playback queue
-    playback_queue.forEach(song => {
-        // convert the duration from ms to a human-readable format like x:xx
-        let min = Math.floor(song.duration_ms / 60000);
-        let sec = ((song.duration_ms % 60000) / 1000).toFixed(0);
-        if (sec == 60) {
-            sec = '00';
-            min++;
-        }
-        if (sec < 10) sec = '0' + sec;
-        const timestamp = `${min}:${sec}`;
-        console.log(song.name, song.duration_ms, timestamp);
-    });
-
-
     // concatenate all the track IDs into a single string seperated by commas
     let track_ids = playback_queue.map(track => track.id).join(',');
 
@@ -26,7 +11,7 @@ const organizeQueue = async (playback_queue) => {
             ids: track_ids
         },
         headers: {
-            "Authorization": `Bearer ${access_token}` // Replace {access_token} with a valid access token
+            "Authorization": `Bearer ${access_token}`
         }
     }).catch(err => console.log(err));
 
@@ -65,7 +50,36 @@ const organizeQueue = async (playback_queue) => {
         return vector.map((val) => (val - mean) / stdDev);
     };
 
-    const cosineSimilarity = (vectorA, vectorB) => {
+    // const cosineSimilarity = (vectorA, vectorB) => {
+    //     vectorA = normalize(vectorA);
+    //     vectorB = normalize(vectorB);
+
+    //     if (vectorA.length !== vectorB.length) {
+    //         throw new Error('Vectors must be of the same length');
+    //     }
+
+    //     let dotProduct = 0;
+    //     let magnitudeA = 0;
+    //     let magnitudeB = 0;
+
+    //     for (let i = 0; i < vectorA.length; i++) {
+    //         dotProduct += vectorA[i] * vectorB[i];
+    //         magnitudeA += vectorA[i] * vectorA[i];
+    //         magnitudeB += vectorB[i] * vectorB[i];
+    //     }
+
+    //     magnitudeA = Math.sqrt(magnitudeA);
+    //     magnitudeB = Math.sqrt(magnitudeB);
+
+    //     if (magnitudeA === 0 || magnitudeB === 0) {
+    //         return 0;
+    //     }
+
+    //     return dotProduct / (magnitudeA * magnitudeB);
+    // }
+
+
+    const euclideanDistance = (vectorA, vectorB) => {
         vectorA = normalize(vectorA);
         vectorB = normalize(vectorB);
 
@@ -73,25 +87,15 @@ const organizeQueue = async (playback_queue) => {
             throw new Error('Vectors must be of the same length');
         }
 
-        let dotProduct = 0;
-        let magnitudeA = 0;
-        let magnitudeB = 0;
+        let sum = 0;
 
         for (let i = 0; i < vectorA.length; i++) {
-            dotProduct += vectorA[i] * vectorB[i];
-            magnitudeA += vectorA[i] * vectorA[i];
-            magnitudeB += vectorB[i] * vectorB[i];
+            sum += Math.pow(vectorA[i] - vectorB[i], 2);
         }
 
-        magnitudeA = Math.sqrt(magnitudeA);
-        magnitudeB = Math.sqrt(magnitudeB);
-
-        if (magnitudeA === 0 || magnitudeB === 0) {
-            return 0;
-        }
-
-        return dotProduct / (magnitudeA * magnitudeB);
+        return Math.sqrt(sum);
     }
+
 
     let queue = audio_features.slice(1);
     let organized_queue = [current_song];
@@ -106,7 +110,7 @@ const organizeQueue = async (playback_queue) => {
         let highest_similarity_index = 0;
 
         for (let i = 0; i < queue.length; i++) {
-            const similarity = cosineSimilarity(current_song.vector, queue[i].vector);
+            const similarity = euclideanDistance(current_song.vector, queue[i].vector);
             if (similarity > highest_similarity) {
                 highest_similarity = similarity;
                 highest_similarity_index = i;
