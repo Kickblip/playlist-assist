@@ -50,36 +50,7 @@ const organizeQueue = async (playback_queue) => {
         return vector.map((val) => (val - mean) / stdDev);
     };
 
-    // const cosineSimilarity = (vectorA, vectorB) => {
-    //     vectorA = normalize(vectorA);
-    //     vectorB = normalize(vectorB);
-
-    //     if (vectorA.length !== vectorB.length) {
-    //         throw new Error('Vectors must be of the same length');
-    //     }
-
-    //     let dotProduct = 0;
-    //     let magnitudeA = 0;
-    //     let magnitudeB = 0;
-
-    //     for (let i = 0; i < vectorA.length; i++) {
-    //         dotProduct += vectorA[i] * vectorB[i];
-    //         magnitudeA += vectorA[i] * vectorA[i];
-    //         magnitudeB += vectorB[i] * vectorB[i];
-    //     }
-
-    //     magnitudeA = Math.sqrt(magnitudeA);
-    //     magnitudeB = Math.sqrt(magnitudeB);
-
-    //     if (magnitudeA === 0 || magnitudeB === 0) {
-    //         return 0;
-    //     }
-
-    //     return dotProduct / (magnitudeA * magnitudeB);
-    // }
-
-
-    const euclideanDistance = (vectorA, vectorB) => {
+    const cosineSimilarity = (vectorA, vectorB) => {
         vectorA = normalize(vectorA);
         vectorB = normalize(vectorB);
 
@@ -87,13 +58,24 @@ const organizeQueue = async (playback_queue) => {
             throw new Error('Vectors must be of the same length');
         }
 
-        let sum = 0;
+        let dotProduct = 0;
+        let magnitudeA = 0;
+        let magnitudeB = 0;
 
         for (let i = 0; i < vectorA.length; i++) {
-            sum += Math.pow(vectorA[i] - vectorB[i], 2);
+            dotProduct += vectorA[i] * vectorB[i];
+            magnitudeA += vectorA[i] * vectorA[i];
+            magnitudeB += vectorB[i] * vectorB[i];
         }
 
-        return Math.sqrt(sum);
+        magnitudeA = Math.sqrt(magnitudeA);
+        magnitudeB = Math.sqrt(magnitudeB);
+
+        if (magnitudeA === 0 || magnitudeB === 0) {
+            return 0;
+        }
+
+        return dotProduct / (magnitudeA * magnitudeB);
     }
 
 
@@ -102,6 +84,7 @@ const organizeQueue = async (playback_queue) => {
 
 
     const organizeQueue = (queue, current_song, organized_queue = []) => {
+
         if (queue.length === 0) {
             return organized_queue;
         }
@@ -110,7 +93,7 @@ const organizeQueue = async (playback_queue) => {
         let highest_similarity_index = 0;
 
         for (let i = 0; i < queue.length; i++) {
-            const similarity = euclideanDistance(current_song.vector, queue[i].vector);
+            const similarity = cosineSimilarity(current_song.vector, queue[i].vector);
             if (similarity > highest_similarity) {
                 highest_similarity = similarity;
                 highest_similarity_index = i;

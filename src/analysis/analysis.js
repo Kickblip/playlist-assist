@@ -40,7 +40,7 @@ const compareTracks = (current_song_analysis, next_song_analysis, range) => {
     let start_time = performance.now()
 
     // slice segment arrays to only include a given range of segments
-    const current_song_segments = current_song_analysis.segments.slice((range * -1) - 5, -5);
+    const current_song_segments = current_song_analysis.segments.slice((range * -1), 0);
     const next_song_segments = next_song_analysis.segments.slice(0, range);
 
     // add the similarity of each possible jump then sort by similarity
@@ -51,20 +51,13 @@ const compareTracks = (current_song_analysis, next_song_analysis, range) => {
     for (let i = 0; i < current_song_segments.length; i++) {
         for (let j = 0; j < next_song_segments.length; j++) {
 
-            const current_segment = current_song_segments[i];
-            const next_segment = next_song_segments[j];
-
-            // create vectors from loudness values
-            const vector1 = [current_segment.loudness_start, current_segment.loudness_max, current_segment.loudness_max_time, current_segment.loudness_end];
-            const vector2 = [next_segment.loudness_start, next_segment.loudness_max, next_segment.loudness_max_time, next_segment.loudness_end];
+            const vector1 = [current_song_segments[i].loudness_start, current_song_segments[i].loudness_max, current_song_segments[i].loudness_max_time, current_song_segments[i].loudness_end];
+            const vector2 = [next_song_segments[j].loudness_start, next_song_segments[j].loudness_max, next_song_segments[j].loudness_max_time, next_song_segments[j].loudness_end];
 
             // calculate the distance between the two vectors
-            const loudness_distance = math.euclideanDistance(vector1, vector2);
+            const distance = math.euclideanDistance(vector1, vector2);
 
-
-
-
-            jumps.push([current_segment, next_segment, loudness_distance]); // add segments that meet criteria to possible jumps
+            jumps.push([current_song_segments[i], next_song_segments[j], distance]); // add segments that meet criteria to possible jumps
         };
     };
 
@@ -72,10 +65,6 @@ const compareTracks = (current_song_analysis, next_song_analysis, range) => {
     jumps.sort((a, b) => {
         return b[2] - a[2];
     });
-
-
-
-
 
 
 
