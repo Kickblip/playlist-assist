@@ -5,28 +5,7 @@ spotify companion webapp for creating seamless, beat-matched transitions based o
 
 [![tiktok demo](https://img.youtube.com/vi/At7JKpYVbnc/0.jpg)](https://www.youtube.com/watch?v=At7JKpYVbnc)
 
-## What data is the algorithm using?
-* Spotify Audio Feature Data (characteristics spotify assigns to tracks)
-  * acousticness
-  * danceability
-  * energy
-  * instrumentalness
-  * liveness
-  * speechiness
-  * valence
-* Track Property Data
-  * loudness
-  * key
-  * mode
-  * tempo
-  * time signature
-* Segmented Data (1 'segment' of audio = ~0.25s)
-  * Timbre
-  * Pitch
-  * Position within beat
-  * Position within bar
-
-## Running Knit-list on localhost
+## Running Playlist-Assist on localhost
 
 1. Replace ```process.env``` variables with your own firebase config + spotify app credentials
 
