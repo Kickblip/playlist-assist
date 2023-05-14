@@ -1,27 +1,16 @@
 # Playlist Assist Playlist Manager
-spotify companion webapp for creating seamless, beat-matched transitions based on audio analysis
+using audio analysis to create seamless, beat-matched transitions for Spotify
 
-## [Second Playlist Assist test done!](https://youtube.com/shorts/At7JKpYVbnc?feature=share)
+## [View the Demo](https://youtube.com/shorts/At7JKpYVbnc?feature=share)
 
 [![tiktok demo](https://img.youtube.com/vi/At7JKpYVbnc/0.jpg)](https://www.youtube.com/watch?v=At7JKpYVbnc)
 
-## Running Playlist-Assist on localhost
+## Running Playlist-Assist
 
-1. Replace ```process.env``` variables with your own firebase config + spotify app credentials
+1. Clone this repo to a local directory
 
-2. Use commands ```npm install``` and ```node app.js``` in terminal
+2. Create a ```.env``` file with your own spotify app credentials
 
-3. Open [http://localhost:8000](http://localhost:8000) to view in your browser
+3. Run ```npm install``` then ```node src/app.js```
 
-## Gallery
-
-<div style="display:flex;justify-content:space-between;align-items:center;">
-  <div style="text-align:center;">
-    <img src="https://cdn.discordapp.com/attachments/1023710494416195686/1067660979917307934/Screen_Shot_2022-12-21_at_1.58.22_PM.png" style="width:45%;height:auto;">
-    <p style="margin-top:10px;">12/21/22 - My first audio analysis (bottom-left array is all possible jumps between songs)</p>
-  </div>
-  <div style="text-align:center;">
-    <img src="https://cdn.discordapp.com/attachments/1023710494416195686/1065670484005486632/Screen_Shot_2023-01-19_at_10.33.26_AM.png" style="width:45%;height:auto;">
-    <p style="margin-top:10px;">1/19/23 - Updated UI</p>
-  </div>
-</div>
+4. Open [http://localhost:8888](http://localhost:8888) to view in your browser
