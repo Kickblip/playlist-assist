@@ -1,5 +1,5 @@
 # Playlist Assist Playlist Manager
-using audio analysis to create seamless, beat-matched transitions for Spotify
+using audio analysis (from the Spotify API) to create seamless, beat-matched transitions for Spotify
 
 ## [View the Demo](https://youtube.com/shorts/At7JKpYVbnc?feature=share)
 
